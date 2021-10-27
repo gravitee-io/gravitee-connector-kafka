@@ -16,15 +16,7 @@
             "USE_ALL_DNS_IPS",
             "RESOLVE_CANONICAL_BOOTSTRAP_SERVERS_ONLY",
             "DEFAULT"
-          ],
-          "x-schema-form": {
-            "type": "select",
-            "titleMap": {
-              "USE_ALL_DNS_IPS": "USE_ALL_DNS_IPS",
-              "RESOLVE_CANONICAL_BOOTSTRAP_SERVERS_ONLY": "RESOLVE_CANONICAL_BOOTSTRAP_SERVERS_ONLY",
-              "DEFAULT": "DEFAULT"
-            }
-          }
+          ]
         }
       }
     },
@@ -165,15 +157,7 @@
             "latest",
             "earliest",
             "none"
-          ],
-          "x-schema-form": {
-            "type": "select",
-            "titleMap": {
-              "latest": "latest",
-              "earliest": "earliest",
-              "none": "none"
-            }
-          }
+          ]
         },
         "checkCRCS": {
           "title": "check.crcs",
@@ -203,14 +187,7 @@
           "enum": [
             "INFO",
             "DEBUG"
-          ],
-          "x-schema-form": {
-            "type": "select",
-            "titleMap": {
-              "INFO": "INFO",
-              "DEBUG": "DEBUG"
-            }
-          }
+          ]
         },
         "metricReporters": {
           "title": "metric.reporters",
@@ -282,14 +259,7 @@
           "enum": [
             "READ_COMMITTED",
             "READ_UNCOMMITTED"
-          ],
-          "x-schema-form": {
-            "type": "select",
-            "titleMap": {
-              "READ_COMMITTED": "READ_COMMITTED",
-              "READ_UNCOMMITTED": "READ_UNCOMMITTED"
-            }
-          }
+          ]
         },
         "allowAutoCreateTopics": {
           "title": "allow.auto.create.topics",
@@ -312,17 +282,11 @@
             "SSL",
             "SASL_PLAINTEXT",
             "SASL_SSL"
-          ],
-          "x-schema-form": {
-            "type": "select",
-            "titleMap": {
-              "PLAINTEXT": "PLAINTEXT",
-              "SSL": "SSL",
-              "SASL_PLAINTEXT": "SASL_PLAINTEXT",
-              "SASL_SSL": "SASL_SSL"
-            }
-          }
+          ]
         }
+      },
+      "x-schema-form": {
+        "open": false
       }
     },
     "producer": {
@@ -355,16 +319,7 @@
             "-1",
             "0",
             "1"
-          ],
-          "x-schema-form": {
-            "type": "select",
-            "titleMap": {
-              "all": "all",
-              "-1": "-1",
-              "0": "0",
-              "1": "1"
-            }
-          }
+          ]
         },
         "compressionType": {
           "title": "compression.type",
@@ -377,17 +332,7 @@
             "snappy",
             "lz4",
             "zstd"
-          ],
-          "x-schema-form": {
-            "type": "select",
-            "titleMap": {
-              "none": "none",
-              "gzip": "gzip",
-              "snappy": "snappy",
-              "lz4": "lz4",
-              "zstd": "zstd"
-            }
-          }
+          ]
         },
         "batchSize": {
           "title": "batch.size",
@@ -508,14 +453,7 @@
           "enum": [
             "INFO",
             "DEBUG"
-          ],
-          "x-schema-form": {
-            "type": "select",
-            "titleMap": {
-              "INFO": "INFO",
-              "DEBUG": "DEBUG"
-            }
-          }
+          ]
         },
         "metricReporters": {
           "title": "metric.reporters",
@@ -568,16 +506,7 @@
             "SSL",
             "SASL_PLAINTEXT",
             "SASL_SSL"
-          ],
-          "x-schema-form": {
-            "type": "select",
-            "titleMap": {
-              "PLAINTEXT": "PLAINTEXT",
-              "SSL": "SSL",
-              "SASL_PLAINTEXT": "SASL_PLAINTEXT",
-              "SASL_SSL": "SASL_SSL"
-            }
-          }
+          ]
         },
         "securityProviders": {
           "title": "security.providers",
@@ -602,7 +531,21 @@
           "type": "string",
           "default": ""
         }
+      },
+      "x-schema-form": {
+        "open": false
       }
     }
+  },
+  "additionalProperties": false,
+  "patternProperties": {
+    "backup": true,
+    "healthcheck": true,
+    "inherit": true,
+    "name": true,
+    "target": true,
+    "tenants": true,
+    "type": true,
+    "weight": true
   }
 }

@@ -20,20 +20,20 @@ package io.gravitee.connector.kafka.configuration;
  * @author GraviteeSource Team
  */
 public enum AutoOffsetReset {
-    LATEST,
-    EARLIEST,
-    NONE;
+  LATEST,
+  EARLIEST,
+  NONE;
 
-    public static AutoOffsetReset getOrDefault(String value) {
-        try {
-            return valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException iae) {
-            return EARLIEST;
-        }
+  public static AutoOffsetReset getOrDefault(String value) {
+    try {
+      return valueOf(value.toUpperCase());
+    } catch (IllegalArgumentException iae) {
+      return EARLIEST;
     }
+  }
 
-    @Override
-    public String toString() {
-        return super.toString().toLowerCase();
-    }
+  @Override
+  public String toString() {
+    return super.toString().toLowerCase();
+  }
 }

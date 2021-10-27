@@ -20,19 +20,19 @@ package io.gravitee.connector.kafka.configuration;
  * @author GraviteeSource Team
  */
 public enum MetricsRecordingLevel {
-    INFO,
-    DEBUG;
+  INFO,
+  DEBUG;
 
-    public static MetricsRecordingLevel getOrDefault(String value) {
-        try {
-            return valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException iae) {
-            return INFO;
-        }
+  public static MetricsRecordingLevel getOrDefault(String value) {
+    try {
+      return valueOf(value.toUpperCase());
+    } catch (IllegalArgumentException iae) {
+      return INFO;
     }
+  }
 
-    @Override
-    public String toString() {
-        return super.toString().toLowerCase();
-    }
+  @Override
+  public String toString() {
+    return super.toString().toLowerCase();
+  }
 }

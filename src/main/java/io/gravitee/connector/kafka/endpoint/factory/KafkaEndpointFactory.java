@@ -25,12 +25,12 @@ import io.gravitee.connector.kafka.endpoint.KafkaEndpoint;
  */
 public class KafkaEndpointFactory {
 
-    public KafkaEndpoint create(String configuration, ObjectMapper mapper) {
-        try {
-            return mapper.readValue(configuration, KafkaEndpoint.class);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return null;
-        }
+  public KafkaEndpoint create(String configuration, ObjectMapper mapper) {
+    try {
+      return mapper.readValue(configuration, KafkaEndpoint.class);
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+      return null;
     }
+  }
 }

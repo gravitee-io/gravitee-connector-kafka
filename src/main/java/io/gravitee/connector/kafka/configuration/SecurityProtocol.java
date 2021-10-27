@@ -20,21 +20,21 @@ package io.gravitee.connector.kafka.configuration;
  * @author GraviteeSource Team
  */
 public enum SecurityProtocol {
-    PLAINTEXT,
-    SSL,
-    SASL_PLAINTEXT,
-    SASL_SSL;
+  PLAINTEXT,
+  SSL,
+  SASL_PLAINTEXT,
+  SASL_SSL;
 
-    public static SecurityProtocol getOrDefault(String value) {
-        try {
-            return valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException iae) {
-            return PLAINTEXT;
-        }
+  public static SecurityProtocol getOrDefault(String value) {
+    try {
+      return valueOf(value.toUpperCase());
+    } catch (IllegalArgumentException iae) {
+      return PLAINTEXT;
     }
+  }
 
-    @Override
-    public String toString() {
-        return super.toString().toLowerCase();
-    }
+  @Override
+  public String toString() {
+    return super.toString().toLowerCase();
+  }
 }

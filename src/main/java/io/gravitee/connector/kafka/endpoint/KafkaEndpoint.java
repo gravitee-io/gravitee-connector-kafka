@@ -28,13 +28,13 @@ import io.gravitee.connector.api.AbstractEndpoint;
 public class KafkaEndpoint extends AbstractEndpoint {
 
   @JsonProperty("common")
-  private CommonConfig commonConfig;
+  private CommonConfig commonConfig = new CommonConfig();
 
   @JsonProperty("consumer")
-  private ConsumerConfig consumerConfig;
+  private ConsumerConfig consumerConfig = new ConsumerConfig();
 
   @JsonProperty("producer")
-  private ProducerConfig producerConfig;
+  private ProducerConfig producerConfig = new ProducerConfig();
 
   @JsonCreator
   public KafkaEndpoint(
@@ -42,7 +42,7 @@ public class KafkaEndpoint extends AbstractEndpoint {
     @JsonProperty(value = "name", required = true) String name,
     @JsonProperty(value = "target", required = true) String target
   ) {
-    super(type != null ? type : "http", name, target);
+    super(type != null ? type : "kafka", name, target);
   }
 
   public CommonConfig getCommonConfig() {

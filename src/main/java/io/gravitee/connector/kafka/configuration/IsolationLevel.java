@@ -20,19 +20,19 @@ package io.gravitee.connector.kafka.configuration;
  * @author GraviteeSource Team
  */
 public enum IsolationLevel {
-    READ_COMMITTED,
-    READ_UNCOMMITTED;
+  READ_COMMITTED,
+  READ_UNCOMMITTED;
 
-    public static IsolationLevel getOrDefault(String value) {
-        try {
-            return valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException iae) {
-            return READ_UNCOMMITTED;
-        }
+  public static IsolationLevel getOrDefault(String value) {
+    try {
+      return valueOf(value.toUpperCase());
+    } catch (IllegalArgumentException iae) {
+      return READ_UNCOMMITTED;
     }
+  }
 
-    @Override
-    public String toString() {
-        return super.toString().toLowerCase();
-    }
+  @Override
+  public String toString() {
+    return super.toString().toLowerCase();
+  }
 }

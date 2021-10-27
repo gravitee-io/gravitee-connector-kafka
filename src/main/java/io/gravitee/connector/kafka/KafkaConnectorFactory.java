@@ -22,7 +22,6 @@ import io.gravitee.connector.api.ConnectorFactory;
 import io.gravitee.connector.kafka.endpoint.KafkaEndpoint;
 import io.gravitee.connector.kafka.endpoint.factory.KafkaEndpointFactory;
 import io.gravitee.gateway.api.proxy.ProxyRequest;
-
 import java.util.Collection;
 import java.util.Collections;
 
@@ -50,7 +49,10 @@ public class KafkaConnectorFactory
     String configuration,
     ConnectorBuilder builder
   ) {
-    KafkaEndpoint kafkaEndpoint = endpointFactory.create(configuration, builder.getMapper());
+    KafkaEndpoint kafkaEndpoint = endpointFactory.create(
+      configuration,
+      builder.getMapper()
+    );
 
     return new KafkaConnector(kafkaEndpoint);
   }

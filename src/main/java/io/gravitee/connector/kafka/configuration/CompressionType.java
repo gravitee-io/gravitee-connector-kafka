@@ -20,22 +20,22 @@ package io.gravitee.connector.kafka.configuration;
  * @author GraviteeSource Team
  */
 public enum CompressionType {
-    NONE,
-    GZIP,
-    SNAPPY,
-    LZ4,
-    ZSTD;
+  NONE,
+  GZIP,
+  SNAPPY,
+  LZ4,
+  ZSTD;
 
-    public static CompressionType getOrDefault(String value) {
-        try {
-            return valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException iae) {
-            return NONE;
-        }
+  public static CompressionType getOrDefault(String value) {
+    try {
+      return valueOf(value.toUpperCase());
+    } catch (IllegalArgumentException iae) {
+      return NONE;
     }
+  }
 
-    @Override
-    public String toString() {
-        return super.toString().toLowerCase();
-    }
+  @Override
+  public String toString() {
+    return super.toString().toLowerCase();
+  }
 }

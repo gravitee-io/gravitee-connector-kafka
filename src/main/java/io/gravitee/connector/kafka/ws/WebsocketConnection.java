@@ -40,21 +40,20 @@ public abstract class WebsocketConnection extends AbstractConnection {
 
     consumer
       .handler(
-              event -> proxyRequest.write(
-                new WebSocketFrame(
-                  io.vertx.core.http.WebSocketFrame.textFrame(
-                    JsonRecordFormatter.format(event),
-                    true
-                  )
-                )
+        event ->
+          proxyRequest.write(
+            new WebSocketFrame(
+              io.vertx.core.http.WebSocketFrame.textFrame(
+                JsonRecordFormatter.format(event),
+                true
               )
+            )
+          )
       )
-      .endHandler(
-              event -> proxyRequest.close()
-      );
+      .endHandler(event -> proxyRequest.close());
 
     proxyRequest.closeHandler(
-            result -> consumer.unsubscribe().onComplete(event -> consumer.close())
+      result -> consumer.unsubscribe().onComplete(event -> consumer.close())
     );
   }
 

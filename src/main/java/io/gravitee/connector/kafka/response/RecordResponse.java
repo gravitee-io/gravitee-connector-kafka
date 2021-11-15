@@ -60,7 +60,6 @@ public class RecordResponse extends AbstractResponse {
 
   @Override
   public ReadStream<Buffer> resume() {
-    endHandler.handle(null);
     return this;
   }
 

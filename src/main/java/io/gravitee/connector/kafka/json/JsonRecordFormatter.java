@@ -29,36 +29,22 @@ import java.util.stream.Collectors;
  */
 public class JsonRecordFormatter {
 
-  public static <K, V> String format(KafkaConsumerRecord<K, V> record) {
-    JsonObject json = new JsonObject();
+    public static <K, V> String format(KafkaConsumerRecord<K, V> record) {
+        JsonObject json = new JsonObject();
 
-    json.put(
-      "metadata",
-      new ConsumerRecordHeader<>(
-        record.key(),
-        record.partition(),
-        record.offset(),
-        record.timestamp()
-      )
-    );
-    if (record.headers() != null) {
-      json.put(
-        "headers",
-        record
-          .headers()
-          .stream()
-          .map(
-            kafkaHeader ->
-              new RecordHeader(
-                kafkaHeader.key(),
-                kafkaHeader.value().toString()
-              )
-          )
-          .collect(Collectors.toList())
-      );
+        json.put("metadata", new ConsumerRecordHeader<>(record.key(), record.partition(), record.offset(), record.timestamp()));
+        if (record.headers() != null) {
+            json.put(
+                "headers",
+                record
+                    .headers()
+                    .stream()
+                    .map(kafkaHeader -> new RecordHeader(kafkaHeader.key(), kafkaHeader.value().toString()))
+                    .collect(Collectors.toList())
+            );
+        }
+        json.put("payload", record.value());
+
+        return json.toString();
     }
-    json.put("payload", record.value());
-
-    return json.toString();
-  }
 }

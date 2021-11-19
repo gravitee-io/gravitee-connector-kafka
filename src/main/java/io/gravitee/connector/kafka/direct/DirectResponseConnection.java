@@ -26,15 +26,15 @@ import io.gravitee.gateway.api.stream.WriteStream;
  */
 public class DirectResponseConnection extends AbstractConnection {
 
-  @Override
-  public WriteStream<Buffer> write(Buffer content) {
-    return this;
-  }
+    @Override
+    public WriteStream<Buffer> write(Buffer content) {
+        return this;
+    }
 
-  @Override
-  public void end() {}
+    @Override
+    public void end() {}
 
-  public void sendResponse(Response response) {
-    this.responseHandler.handle(response);
-  }
+    public void sendResponse(Response response) {
+        this.responseHandler.handle(response);
+    }
 }

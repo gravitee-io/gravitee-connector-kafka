@@ -21,13 +21,13 @@ package io.gravitee.connector.kafka.endpoint;
  */
 public class CommonConfig {
 
-  private String clientDnsLookup = "USE_ALL_DNS_IPS";
+    private String clientDnsLookup = "USE_ALL_DNS_IPS";
 
-  public String getClientDnsLookup() {
-    return clientDnsLookup;
-  }
+    public String getClientDnsLookup() {
+        return clientDnsLookup;
+    }
 
-  public void setClientDnsLookup(String clientDnsLookup) {
-    this.clientDnsLookup = clientDnsLookup;
-  }
+    public void setClientDnsLookup(String clientDnsLookup) {
+        this.clientDnsLookup = clientDnsLookup;
+    }
 }

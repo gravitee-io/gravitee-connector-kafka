@@ -22,39 +22,34 @@ import io.vertx.core.http.WebSocketFrameType;
  * @author David BRASSELY (david.brassely at graviteesource.com)
  * @author GraviteeSource Team
  */
-public class WebSocketFrame
-  implements io.gravitee.gateway.api.ws.WebSocketFrame {
+public class WebSocketFrame implements io.gravitee.gateway.api.ws.WebSocketFrame {
 
-  private final io.vertx.core.http.WebSocketFrame frame;
+    private final io.vertx.core.http.WebSocketFrame frame;
 
-  WebSocketFrame(io.vertx.core.http.WebSocketFrame frame) {
-    this.frame = frame;
-  }
+    WebSocketFrame(io.vertx.core.http.WebSocketFrame frame) {
+        this.frame = frame;
+    }
 
-  @Override
-  public Type type() {
-    return frame.isBinary()
-      ? Type.BINARY
-      : frame.isClose()
-        ? Type.CLOSE
-        : frame.isContinuation()
-          ? Type.CONTINUATION
-          : frame.isText()
-            ? Type.TEXT
-            : frame.isPing()
-              ? Type.PING
-              : frame.type() == WebSocketFrameType.PONG
-                ? Type.PONG
-                : Type.CLOSE;
-  }
+    @Override
+    public Type type() {
+        return frame.isBinary()
+            ? Type.BINARY
+            : frame.isClose()
+                ? Type.CLOSE
+                : frame.isContinuation()
+                    ? Type.CONTINUATION
+                    : frame.isText()
+                        ? Type.TEXT
+                        : frame.isPing() ? Type.PING : frame.type() == WebSocketFrameType.PONG ? Type.PONG : Type.CLOSE;
+    }
 
-  @Override
-  public Buffer data() {
-    return Buffer.buffer(frame.binaryData().getBytes());
-  }
+    @Override
+    public Buffer data() {
+        return Buffer.buffer(frame.binaryData().getBytes());
+    }
 
-  @Override
-  public boolean isFinal() {
-    return frame.isFinal();
-  }
+    @Override
+    public boolean isFinal() {
+        return frame.isFinal();
+    }
 }

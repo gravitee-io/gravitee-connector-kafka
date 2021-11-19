@@ -30,509 +30,426 @@ import org.apache.kafka.clients.CommonClientConfigs;
  */
 public class ProducerConfig {
 
-  private int bufferMemory = 33554432;
+    private int bufferMemory = 33554432;
 
-  private int retries = 2147483647;
+    private int retries = 2147483647;
 
-  private String acks = "1";
+    private String acks = "1";
 
-  private String compressionType = "none";
+    private String compressionType = "none";
 
-  private int batchSize = 16384;
+    private int batchSize = 16384;
 
-  private int lingerMs = 0;
+    private int lingerMs = 0;
 
-  private int deliveryTimeoutMs = 120000;
+    private int deliveryTimeoutMs = 120000;
 
-  private String clientId = "";
+    private String clientId = "";
 
-  private int sendBufferBytes = 131072;
+    private int sendBufferBytes = 131072;
 
-  private int receiveBufferBytes = 32768;
+    private int receiveBufferBytes = 32768;
 
-  private int maxRequestSize = 1048576;
+    private int maxRequestSize = 1048576;
 
-  private int reconnectBackoffMs = 50;
+    private int reconnectBackoffMs = 50;
 
-  private int reconnectBackoffMaxMs = 1000;
+    private int reconnectBackoffMaxMs = 1000;
 
-  private int retryBackoffMs = 100;
+    private int retryBackoffMs = 100;
 
-  private int maxBlockMs = 60000;
+    private int maxBlockMs = 60000;
 
-  private int requestTimeoutMs = 30000;
+    private int requestTimeoutMs = 30000;
 
-  private int metadataMaxAgeMs = 30000;
+    private int metadataMaxAgeMs = 30000;
 
-  private int metadataMaxIdleMs = 300000;
+    private int metadataMaxIdleMs = 300000;
 
-  private int metricsSampleWindowMs = 30000;
+    private int metricsSampleWindowMs = 30000;
 
-  private int metricsNumSamples = 2;
+    private int metricsNumSamples = 2;
 
-  private String metricsRecordingLevel = "INFO";
+    private String metricsRecordingLevel = "INFO";
 
-  private List<String> metricReporters = Collections.emptyList();
+    private List<String> metricReporters = Collections.emptyList();
 
-  private int maxInFlightRequestsPerConnection = 5;
+    private int maxInFlightRequestsPerConnection = 5;
 
-  private String keySerializer =
-    "org.apache.kafka.common.serialization.StringSerializer";
+    private String keySerializer = "org.apache.kafka.common.serialization.StringSerializer";
 
-  private String valueSerializer =
-    "org.apache.kafka.common.serialization.StringSerializer";
+    private String valueSerializer = "org.apache.kafka.common.serialization.StringSerializer";
 
-  private int connectionsMaxIdleMs = 540000;
+    private int connectionsMaxIdleMs = 540000;
 
-  private String partitionerClass =
-    "org.apache.kafka.clients.producer.internals.DefaultPartitioner";
+    private String partitionerClass = "org.apache.kafka.clients.producer.internals.DefaultPartitioner";
 
-  private List<String> interceptorClasses = Collections.emptyList();
+    private List<String> interceptorClasses = Collections.emptyList();
 
-  private String securityProtocol = "PLAINTEXT";
+    private String securityProtocol = "PLAINTEXT";
 
-  private List<String> securityProviders = Collections.emptyList();
+    private List<String> securityProviders = Collections.emptyList();
 
-  private boolean enableIdempotence = false;
+    private boolean enableIdempotence = false;
 
-  private int transactionTimeoutMs = 60000;
+    private int transactionTimeoutMs = 60000;
 
-  private String transactionalId = "";
+    private String transactionalId = "";
 
-  public int getBufferMemory() {
-    return bufferMemory;
-  }
+    public int getBufferMemory() {
+        return bufferMemory;
+    }
 
-  public void setBufferMemory(int bufferMemory) {
-    this.bufferMemory = bufferMemory;
-  }
+    public void setBufferMemory(int bufferMemory) {
+        this.bufferMemory = bufferMemory;
+    }
 
-  public int getRetries() {
-    return retries;
-  }
+    public int getRetries() {
+        return retries;
+    }
 
-  public void setRetries(int retries) {
-    this.retries = retries;
-  }
+    public void setRetries(int retries) {
+        this.retries = retries;
+    }
 
-  public String getAcks() {
-    return acks;
-  }
+    public String getAcks() {
+        return acks;
+    }
 
-  public void setAcks(String acks) {
-    this.acks = acks;
-  }
+    public void setAcks(String acks) {
+        this.acks = acks;
+    }
 
-  public String getCompressionType() {
-    return compressionType;
-  }
+    public String getCompressionType() {
+        return compressionType;
+    }
 
-  public void setCompressionType(String compressionType) {
-    this.compressionType = compressionType;
-  }
+    public void setCompressionType(String compressionType) {
+        this.compressionType = compressionType;
+    }
 
-  public int getBatchSize() {
-    return batchSize;
-  }
+    public int getBatchSize() {
+        return batchSize;
+    }
+
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
+    }
+
+    public int getLingerMs() {
+        return lingerMs;
+    }
+
+    public void setLingerMs(int lingerMs) {
+        this.lingerMs = lingerMs;
+    }
+
+    public int getDeliveryTimeoutMs() {
+        return deliveryTimeoutMs;
+    }
+
+    public void setDeliveryTimeoutMs(int deliveryTimeoutMs) {
+        this.deliveryTimeoutMs = deliveryTimeoutMs;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    public int getSendBufferBytes() {
+        return sendBufferBytes;
+    }
+
+    public void setSendBufferBytes(int sendBufferBytes) {
+        this.sendBufferBytes = sendBufferBytes;
+    }
+
+    public int getReceiveBufferBytes() {
+        return receiveBufferBytes;
+    }
+
+    public void setReceiveBufferBytes(int receiveBufferBytes) {
+        this.receiveBufferBytes = receiveBufferBytes;
+    }
+
+    public int getMaxRequestSize() {
+        return maxRequestSize;
+    }
+
+    public void setMaxRequestSize(int maxRequestSize) {
+        this.maxRequestSize = maxRequestSize;
+    }
+
+    public int getReconnectBackoffMs() {
+        return reconnectBackoffMs;
+    }
+
+    public void setReconnectBackoffMs(int reconnectBackoffMs) {
+        this.reconnectBackoffMs = reconnectBackoffMs;
+    }
+
+    public int getReconnectBackoffMaxMs() {
+        return reconnectBackoffMaxMs;
+    }
+
+    public void setReconnectBackoffMaxMs(int reconnectBackoffMaxMs) {
+        this.reconnectBackoffMaxMs = reconnectBackoffMaxMs;
+    }
+
+    public int getRetryBackoffMs() {
+        return retryBackoffMs;
+    }
+
+    public void setRetryBackoffMs(int retryBackoffMs) {
+        this.retryBackoffMs = retryBackoffMs;
+    }
+
+    public int getMaxBlockMs() {
+        return maxBlockMs;
+    }
+
+    public void setMaxBlockMs(int maxBlockMs) {
+        this.maxBlockMs = maxBlockMs;
+    }
+
+    public int getRequestTimeoutMs() {
+        return requestTimeoutMs;
+    }
+
+    public void setRequestTimeoutMs(int requestTimeoutMs) {
+        this.requestTimeoutMs = requestTimeoutMs;
+    }
+
+    public int getMetadataMaxAgeMs() {
+        return metadataMaxAgeMs;
+    }
+
+    public void setMetadataMaxAgeMs(int metadataMaxAgeMs) {
+        this.metadataMaxAgeMs = metadataMaxAgeMs;
+    }
+
+    public int getMetadataMaxIdleMs() {
+        return metadataMaxIdleMs;
+    }
+
+    public void setMetadataMaxIdleMs(int metadataMaxIdleMs) {
+        this.metadataMaxIdleMs = metadataMaxIdleMs;
+    }
+
+    public int getMetricsSampleWindowMs() {
+        return metricsSampleWindowMs;
+    }
+
+    public void setMetricsSampleWindowMs(int metricsSampleWindowMs) {
+        this.metricsSampleWindowMs = metricsSampleWindowMs;
+    }
+
+    public int getMetricsNumSamples() {
+        return metricsNumSamples;
+    }
+
+    public void setMetricsNumSamples(int metricsNumSamples) {
+        this.metricsNumSamples = metricsNumSamples;
+    }
+
+    public String getMetricsRecordingLevel() {
+        return metricsRecordingLevel;
+    }
+
+    public void setMetricsRecordingLevel(String metricsRecordingLevel) {
+        this.metricsRecordingLevel = metricsRecordingLevel;
+    }
 
-  public void setBatchSize(int batchSize) {
-    this.batchSize = batchSize;
-  }
+    public List<String> getMetricReporters() {
+        return metricReporters;
+    }
 
-  public int getLingerMs() {
-    return lingerMs;
-  }
+    public void setMetricReporters(List<String> metricReporters) {
+        this.metricReporters = metricReporters;
+    }
 
-  public void setLingerMs(int lingerMs) {
-    this.lingerMs = lingerMs;
-  }
+    public int getMaxInFlightRequestsPerConnection() {
+        return maxInFlightRequestsPerConnection;
+    }
 
-  public int getDeliveryTimeoutMs() {
-    return deliveryTimeoutMs;
-  }
+    public void setMaxInFlightRequestsPerConnection(int maxInFlightRequestsPerConnection) {
+        this.maxInFlightRequestsPerConnection = maxInFlightRequestsPerConnection;
+    }
 
-  public void setDeliveryTimeoutMs(int deliveryTimeoutMs) {
-    this.deliveryTimeoutMs = deliveryTimeoutMs;
-  }
+    public String getKeySerializer() {
+        return keySerializer;
+    }
 
-  public String getClientId() {
-    return clientId;
-  }
+    public void setKeySerializer(String keySerializer) {
+        this.keySerializer = keySerializer;
+    }
 
-  public void setClientId(String clientId) {
-    this.clientId = clientId;
-  }
+    public String getValueSerializer() {
+        return valueSerializer;
+    }
 
-  public int getSendBufferBytes() {
-    return sendBufferBytes;
-  }
+    public void setValueSerializer(String valueSerializer) {
+        this.valueSerializer = valueSerializer;
+    }
 
-  public void setSendBufferBytes(int sendBufferBytes) {
-    this.sendBufferBytes = sendBufferBytes;
-  }
+    public int getConnectionsMaxIdleMs() {
+        return connectionsMaxIdleMs;
+    }
 
-  public int getReceiveBufferBytes() {
-    return receiveBufferBytes;
-  }
+    public void setConnectionsMaxIdleMs(int connectionsMaxIdleMs) {
+        this.connectionsMaxIdleMs = connectionsMaxIdleMs;
+    }
 
-  public void setReceiveBufferBytes(int receiveBufferBytes) {
-    this.receiveBufferBytes = receiveBufferBytes;
-  }
+    public String getPartitionerClass() {
+        return partitionerClass;
+    }
 
-  public int getMaxRequestSize() {
-    return maxRequestSize;
-  }
+    public void setPartitionerClass(String partitionerClass) {
+        this.partitionerClass = partitionerClass;
+    }
 
-  public void setMaxRequestSize(int maxRequestSize) {
-    this.maxRequestSize = maxRequestSize;
-  }
+    public List<String> getInterceptorClasses() {
+        return interceptorClasses;
+    }
 
-  public int getReconnectBackoffMs() {
-    return reconnectBackoffMs;
-  }
+    public void setInterceptorClasses(List<String> interceptorClasses) {
+        this.interceptorClasses = interceptorClasses;
+    }
 
-  public void setReconnectBackoffMs(int reconnectBackoffMs) {
-    this.reconnectBackoffMs = reconnectBackoffMs;
-  }
+    public String getSecurityProtocol() {
+        return securityProtocol;
+    }
 
-  public int getReconnectBackoffMaxMs() {
-    return reconnectBackoffMaxMs;
-  }
+    public void setSecurityProtocol(String securityProtocol) {
+        this.securityProtocol = securityProtocol;
+    }
 
-  public void setReconnectBackoffMaxMs(int reconnectBackoffMaxMs) {
-    this.reconnectBackoffMaxMs = reconnectBackoffMaxMs;
-  }
+    public List<String> getSecurityProviders() {
+        return securityProviders;
+    }
 
-  public int getRetryBackoffMs() {
-    return retryBackoffMs;
-  }
+    public void setSecurityProviders(List<String> securityProviders) {
+        this.securityProviders = securityProviders;
+    }
 
-  public void setRetryBackoffMs(int retryBackoffMs) {
-    this.retryBackoffMs = retryBackoffMs;
-  }
+    public boolean isEnableIdempotence() {
+        return enableIdempotence;
+    }
 
-  public int getMaxBlockMs() {
-    return maxBlockMs;
-  }
+    public void setEnableIdempotence(boolean enableIdempotence) {
+        this.enableIdempotence = enableIdempotence;
+    }
 
-  public void setMaxBlockMs(int maxBlockMs) {
-    this.maxBlockMs = maxBlockMs;
-  }
+    public int getTransactionTimeoutMs() {
+        return transactionTimeoutMs;
+    }
 
-  public int getRequestTimeoutMs() {
-    return requestTimeoutMs;
-  }
+    public void setTransactionTimeoutMs(int transactionTimeoutMs) {
+        this.transactionTimeoutMs = transactionTimeoutMs;
+    }
 
-  public void setRequestTimeoutMs(int requestTimeoutMs) {
-    this.requestTimeoutMs = requestTimeoutMs;
-  }
+    public String getTransactionalId() {
+        return transactionalId;
+    }
 
-  public int getMetadataMaxAgeMs() {
-    return metadataMaxAgeMs;
-  }
+    public void setTransactionalId(String transactionalId) {
+        this.transactionalId = transactionalId;
+    }
 
-  public void setMetadataMaxAgeMs(int metadataMaxAgeMs) {
-    this.metadataMaxAgeMs = metadataMaxAgeMs;
-  }
+    public Map<String, String> getKafkaConfig() {
+        final Map<String, String> config = new HashMap<>();
 
-  public int getMetadataMaxIdleMs() {
-    return metadataMaxIdleMs;
-  }
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.BUFFER_MEMORY_CONFIG, Integer.toString(getBufferMemory()));
 
-  public void setMetadataMaxIdleMs(int metadataMaxIdleMs) {
-    this.metadataMaxIdleMs = metadataMaxIdleMs;
-  }
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.RETRIES_CONFIG, Integer.toString(getRetries()));
 
-  public int getMetricsSampleWindowMs() {
-    return metricsSampleWindowMs;
-  }
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.ACKS_CONFIG, getAcks());
 
-  public void setMetricsSampleWindowMs(int metricsSampleWindowMs) {
-    this.metricsSampleWindowMs = metricsSampleWindowMs;
-  }
+        config.put(
+            org.apache.kafka.clients.producer.ProducerConfig.COMPRESSION_TYPE_CONFIG,
+            CompressionType.getOrDefault(getCompressionType()).toString()
+        );
 
-  public int getMetricsNumSamples() {
-    return metricsNumSamples;
-  }
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.BATCH_SIZE_CONFIG, Integer.toString(getBatchSize()));
 
-  public void setMetricsNumSamples(int metricsNumSamples) {
-    this.metricsNumSamples = metricsNumSamples;
-  }
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.LINGER_MS_CONFIG, Integer.toString(getLingerMs()));
 
-  public String getMetricsRecordingLevel() {
-    return metricsRecordingLevel;
-  }
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, Integer.toString(getDeliveryTimeoutMs()));
 
-  public void setMetricsRecordingLevel(String metricsRecordingLevel) {
-    this.metricsRecordingLevel = metricsRecordingLevel;
-  }
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.CLIENT_ID_CONFIG, getClientId());
 
-  public List<String> getMetricReporters() {
-    return metricReporters;
-  }
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.SEND_BUFFER_CONFIG, Integer.toString(getSendBufferBytes()));
 
-  public void setMetricReporters(List<String> metricReporters) {
-    this.metricReporters = metricReporters;
-  }
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.RECEIVE_BUFFER_CONFIG, Integer.toString(getReceiveBufferBytes()));
 
-  public int getMaxInFlightRequestsPerConnection() {
-    return maxInFlightRequestsPerConnection;
-  }
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.MAX_REQUEST_SIZE_CONFIG, Integer.toString(getMaxRequestSize()));
 
-  public void setMaxInFlightRequestsPerConnection(
-    int maxInFlightRequestsPerConnection
-  ) {
-    this.maxInFlightRequestsPerConnection = maxInFlightRequestsPerConnection;
-  }
-
-  public String getKeySerializer() {
-    return keySerializer;
-  }
-
-  public void setKeySerializer(String keySerializer) {
-    this.keySerializer = keySerializer;
-  }
-
-  public String getValueSerializer() {
-    return valueSerializer;
-  }
-
-  public void setValueSerializer(String valueSerializer) {
-    this.valueSerializer = valueSerializer;
-  }
-
-  public int getConnectionsMaxIdleMs() {
-    return connectionsMaxIdleMs;
-  }
-
-  public void setConnectionsMaxIdleMs(int connectionsMaxIdleMs) {
-    this.connectionsMaxIdleMs = connectionsMaxIdleMs;
-  }
-
-  public String getPartitionerClass() {
-    return partitionerClass;
-  }
-
-  public void setPartitionerClass(String partitionerClass) {
-    this.partitionerClass = partitionerClass;
-  }
-
-  public List<String> getInterceptorClasses() {
-    return interceptorClasses;
-  }
-
-  public void setInterceptorClasses(List<String> interceptorClasses) {
-    this.interceptorClasses = interceptorClasses;
-  }
-
-  public String getSecurityProtocol() {
-    return securityProtocol;
-  }
-
-  public void setSecurityProtocol(String securityProtocol) {
-    this.securityProtocol = securityProtocol;
-  }
-
-  public List<String> getSecurityProviders() {
-    return securityProviders;
-  }
-
-  public void setSecurityProviders(List<String> securityProviders) {
-    this.securityProviders = securityProviders;
-  }
-
-  public boolean isEnableIdempotence() {
-    return enableIdempotence;
-  }
-
-  public void setEnableIdempotence(boolean enableIdempotence) {
-    this.enableIdempotence = enableIdempotence;
-  }
-
-  public int getTransactionTimeoutMs() {
-    return transactionTimeoutMs;
-  }
-
-  public void setTransactionTimeoutMs(int transactionTimeoutMs) {
-    this.transactionTimeoutMs = transactionTimeoutMs;
-  }
-
-  public String getTransactionalId() {
-    return transactionalId;
-  }
-
-  public void setTransactionalId(String transactionalId) {
-    this.transactionalId = transactionalId;
-  }
-
-  public Map<String, String> getKafkaConfig() {
-    final Map<String, String> config = new HashMap<>();
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.BUFFER_MEMORY_CONFIG,
-      Integer.toString(getBufferMemory())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.RETRIES_CONFIG,
-      Integer.toString(getRetries())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.ACKS_CONFIG,
-      getAcks()
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.COMPRESSION_TYPE_CONFIG,
-      CompressionType.getOrDefault(getCompressionType()).toString()
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.BATCH_SIZE_CONFIG,
-      Integer.toString(getBatchSize())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.LINGER_MS_CONFIG,
-      Integer.toString(getLingerMs())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG,
-      Integer.toString(getDeliveryTimeoutMs())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.CLIENT_ID_CONFIG,
-      getClientId()
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.SEND_BUFFER_CONFIG,
-      Integer.toString(getSendBufferBytes())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.RECEIVE_BUFFER_CONFIG,
-      Integer.toString(getReceiveBufferBytes())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.MAX_REQUEST_SIZE_CONFIG,
-      Integer.toString(getMaxRequestSize())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.RECONNECT_BACKOFF_MS_CONFIG,
-      Integer.toString(getReconnectBackoffMs())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG,
-      Integer.toString(getReconnectBackoffMaxMs())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.RETRY_BACKOFF_MS_CONFIG,
-      Integer.toString(getRetryBackoffMs())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.MAX_BLOCK_MS_CONFIG,
-      Integer.toString(getMaxBlockMs())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG,
-      Integer.toString(getRequestTimeoutMs())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.METADATA_MAX_AGE_CONFIG,
-      Integer.toString(getMetadataMaxAgeMs())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.METADATA_MAX_IDLE_CONFIG,
-      Integer.toString(getMetadataMaxIdleMs())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.METRICS_SAMPLE_WINDOW_MS_CONFIG,
-      Integer.toString(getMetricsSampleWindowMs())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.METRICS_NUM_SAMPLES_CONFIG,
-      Integer.toString(getMetricsNumSamples())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.METRICS_RECORDING_LEVEL_CONFIG,
-      MetricsRecordingLevel.getOrDefault(getMetricsRecordingLevel()).toString()
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.METRIC_REPORTER_CLASSES_CONFIG,
-      String.join(",", getMetricReporters())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION,
-      Integer.toString(getMaxInFlightRequestsPerConnection())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-      getKeySerializer()
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-      getValueSerializer()
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.CONNECTIONS_MAX_IDLE_MS_CONFIG,
-      Integer.toString(getConnectionsMaxIdleMs())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.PARTITIONER_CLASS_CONFIG,
-      getPartitionerClass()
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.INTERCEPTOR_CLASSES_CONFIG,
-      String.join(",", getInterceptorClasses())
-    );
-
-    config.put(
-      CommonClientConfigs.SECURITY_PROTOCOL_CONFIG,
-      SecurityProtocol.getOrDefault(getSecurityProtocol()).toString()
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.SECURITY_PROVIDERS_CONFIG,
-      String.join(",", getSecurityProviders())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG,
-      Boolean.toString(isEnableIdempotence())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.TRANSACTION_TIMEOUT_CONFIG,
-      Integer.toString(getTransactionTimeoutMs())
-    );
-
-    config.put(
-      org.apache.kafka.clients.producer.ProducerConfig.TRANSACTIONAL_ID_CONFIG,
-      getTransactionalId()
-    );
-
-    return config;
-  }
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.RECONNECT_BACKOFF_MS_CONFIG, Integer.toString(getReconnectBackoffMs()));
+
+        config.put(
+            org.apache.kafka.clients.producer.ProducerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG,
+            Integer.toString(getReconnectBackoffMaxMs())
+        );
+
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.RETRY_BACKOFF_MS_CONFIG, Integer.toString(getRetryBackoffMs()));
+
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.MAX_BLOCK_MS_CONFIG, Integer.toString(getMaxBlockMs()));
+
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, Integer.toString(getRequestTimeoutMs()));
+
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.METADATA_MAX_AGE_CONFIG, Integer.toString(getMetadataMaxAgeMs()));
+
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.METADATA_MAX_IDLE_CONFIG, Integer.toString(getMetadataMaxIdleMs()));
+
+        config.put(
+            org.apache.kafka.clients.producer.ProducerConfig.METRICS_SAMPLE_WINDOW_MS_CONFIG,
+            Integer.toString(getMetricsSampleWindowMs())
+        );
+
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.METRICS_NUM_SAMPLES_CONFIG, Integer.toString(getMetricsNumSamples()));
+
+        config.put(
+            org.apache.kafka.clients.producer.ProducerConfig.METRICS_RECORDING_LEVEL_CONFIG,
+            MetricsRecordingLevel.getOrDefault(getMetricsRecordingLevel()).toString()
+        );
+
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.METRIC_REPORTER_CLASSES_CONFIG, String.join(",", getMetricReporters()));
+
+        config.put(
+            org.apache.kafka.clients.producer.ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION,
+            Integer.toString(getMaxInFlightRequestsPerConnection())
+        );
+
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, getKeySerializer());
+
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, getValueSerializer());
+
+        config.put(
+            org.apache.kafka.clients.producer.ProducerConfig.CONNECTIONS_MAX_IDLE_MS_CONFIG,
+            Integer.toString(getConnectionsMaxIdleMs())
+        );
+
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.PARTITIONER_CLASS_CONFIG, getPartitionerClass());
+
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, String.join(",", getInterceptorClasses()));
+
+        config.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.getOrDefault(getSecurityProtocol()).toString());
+
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.SECURITY_PROVIDERS_CONFIG, String.join(",", getSecurityProviders()));
+
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, Boolean.toString(isEnableIdempotence()));
+
+        config.put(
+            org.apache.kafka.clients.producer.ProducerConfig.TRANSACTION_TIMEOUT_CONFIG,
+            Integer.toString(getTransactionTimeoutMs())
+        );
+
+        config.put(org.apache.kafka.clients.producer.ProducerConfig.TRANSACTIONAL_ID_CONFIG, getTransactionalId());
+
+        return config;
+    }
 }

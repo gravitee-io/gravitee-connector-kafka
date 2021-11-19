@@ -20,20 +20,20 @@ package io.gravitee.connector.kafka.configuration;
  * @author GraviteeSource Team
  */
 public enum ClientDnsLookup {
-  USE_ALL_DNS_IPS,
-  RESOLVE_CANONICAL_BOOTSTRAP_SERVERS_ONLY,
-  DEFAULT;
+    USE_ALL_DNS_IPS,
+    RESOLVE_CANONICAL_BOOTSTRAP_SERVERS_ONLY,
+    DEFAULT;
 
-  public static ClientDnsLookup getOrDefault(String value) {
-    try {
-      return valueOf(value.toUpperCase());
-    } catch (IllegalArgumentException iae) {
-      return USE_ALL_DNS_IPS;
+    public static ClientDnsLookup getOrDefault(String value) {
+        try {
+            return valueOf(value.toUpperCase());
+        } catch (IllegalArgumentException iae) {
+            return USE_ALL_DNS_IPS;
+        }
     }
-  }
 
-  @Override
-  public String toString() {
-    return super.toString().toLowerCase();
-  }
+    @Override
+    public String toString() {
+        return super.toString().toLowerCase();
+    }
 }

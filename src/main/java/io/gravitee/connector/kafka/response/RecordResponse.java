@@ -27,44 +27,44 @@ import io.gravitee.gateway.api.stream.ReadStream;
  */
 public class RecordResponse extends AbstractResponse {
 
-  private final HttpHeaders httpHeaders = new HttpHeaders();
+    private final HttpHeaders httpHeaders = new HttpHeaders();
 
-  private final int statusCode;
-  private String reason;
+    private final int statusCode;
+    private String reason;
 
-  public RecordResponse(int statusCode) {
-    this.statusCode = statusCode;
-    this.reason = null;
-    httpHeaders.set(HttpHeaders.CONNECTION, HttpHeadersValues.CONNECTION_CLOSE);
-  }
+    public RecordResponse(int statusCode) {
+        this.statusCode = statusCode;
+        this.reason = null;
+        httpHeaders.set(HttpHeaders.CONNECTION, HttpHeadersValues.CONNECTION_CLOSE);
+    }
 
-  public RecordResponse(int statusCode, String reason) {
-    this(statusCode);
-    this.reason = reason;
-    httpHeaders.set(HttpHeaders.CONNECTION, HttpHeadersValues.CONNECTION_CLOSE);
-  }
+    public RecordResponse(int statusCode, String reason) {
+        this(statusCode);
+        this.reason = reason;
+        httpHeaders.set(HttpHeaders.CONNECTION, HttpHeadersValues.CONNECTION_CLOSE);
+    }
 
-  @Override
-  public int status() {
-    return statusCode;
-  }
+    @Override
+    public int status() {
+        return statusCode;
+    }
 
-  public String getReason() {
-    return reason;
-  }
+    public String getReason() {
+        return reason;
+    }
 
-  @Override
-  public HttpHeaders headers() {
-    return httpHeaders;
-  }
+    @Override
+    public HttpHeaders headers() {
+        return httpHeaders;
+    }
 
-  @Override
-  public ReadStream<Buffer> resume() {
-    return this;
-  }
+    @Override
+    public ReadStream<Buffer> resume() {
+        return this;
+    }
 
-  @Override
-  public boolean connected() {
-    return true;
-  }
+    @Override
+    public boolean connected() {
+        return true;
+    }
 }

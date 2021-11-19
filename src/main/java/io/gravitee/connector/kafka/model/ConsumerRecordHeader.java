@@ -21,36 +21,31 @@ package io.gravitee.connector.kafka.model;
  */
 public class ConsumerRecordHeader<K, V> {
 
-  private final K key;
-  private final int partition;
-  private final long offset;
-  private final long timestamp;
+    private final K key;
+    private final int partition;
+    private final long offset;
+    private final long timestamp;
 
-  public ConsumerRecordHeader(
-    final K key,
-    final int partition,
-    final long offset,
-    final long timestamp
-  ) {
-    this.key = key;
-    this.partition = partition;
-    this.offset = offset;
-    this.timestamp = timestamp;
-  }
+    public ConsumerRecordHeader(final K key, final int partition, final long offset, final long timestamp) {
+        this.key = key;
+        this.partition = partition;
+        this.offset = offset;
+        this.timestamp = timestamp;
+    }
 
-  public K getKey() {
-    return key;
-  }
+    public K getKey() {
+        return key;
+    }
 
-  public int getPartition() {
-    return partition;
-  }
+    public int getPartition() {
+        return partition;
+    }
 
-  public long getOffset() {
-    return offset;
-  }
+    public long getOffset() {
+        return offset;
+    }
 
-  public long getTimestamp() {
-    return timestamp;
-  }
+    public long getTimestamp() {
+        return timestamp;
+    }
 }

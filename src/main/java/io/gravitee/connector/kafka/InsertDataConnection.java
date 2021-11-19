@@ -34,84 +34,77 @@ import io.vertx.kafka.client.producer.RecordMetadata;
  */
 public class InsertDataConnection extends AbstractConnection {
 
-  private static final String CONTEXT_ATTRIBUTE_KAFKA_RECORD_KEY =
-    KafkaConnector.KAFKA_CONTEXT_ATTRIBUTE + "key";
+    private static final String CONTEXT_ATTRIBUTE_KAFKA_RECORD_KEY = KafkaConnector.KAFKA_CONTEXT_ATTRIBUTE + "key";
 
-  private final ExecutionContext context;
-  private final Buffer buffer = Buffer.buffer();
-  private final KafkaProducer<String, String> producer;
-  private final String topic;
-  private final int partition;
-  private final ProxyRequest request;
+    private final ExecutionContext context;
+    private final Buffer buffer = Buffer.buffer();
+    private final KafkaProducer<String, String> producer;
+    private final String topic;
+    private final int partition;
+    private final ProxyRequest request;
 
-  public InsertDataConnection(
-    final ExecutionContext context,
-    final KafkaProducer<String, String> producer,
-    final String topic,
-    final int partition,
-    final ProxyRequest request
-  ) {
-    this.context = context;
-    this.producer = producer;
-    this.topic = topic;
-    this.partition = partition;
-    this.request = request;
-  }
-
-  @Override
-  public WriteStream<Buffer> write(Buffer content) {
-    buffer.appendBuffer(content);
-    return this;
-  }
-
-  @Override
-  public void end() {
-    KafkaProducerRecord<String, String> record = KafkaProducerRecord.create(
-      topic,
-      getKey(context),
-      buffer.toString(),
-      (partition != -1) ? partition : null
-    );
-
-    setHeaders(record);
-
-    producer
-      .send(record)
-      .onFailure(
-        new Handler<Throwable>() {
-          @Override
-          public void handle(Throwable event) {
-            responseHandler.handle(
-              new StatusResponse(HttpStatusCode.INTERNAL_SERVER_ERROR_500)
-            );
-            producer.close();
-          }
-        }
-      )
-      .onSuccess(
-        new Handler<RecordMetadata>() {
-          @Override
-          public void handle(RecordMetadata event) {
-            responseHandler.handle(
-              new StatusResponse(HttpStatusCode.CREATED_201)
-            );
-          }
-        }
-      );
-  }
-
-  private void setHeaders(KafkaProducerRecord<String, String> record) {
-    request.headers().forEach((s, o) -> record.addHeader(s, o.get(0)));
-  }
-
-  private String getKey(ExecutionContext context) {
-    String key = (String) context.getAttribute(
-      CONTEXT_ATTRIBUTE_KAFKA_RECORD_KEY
-    );
-    if (key == null) {
-      key = UUID.random().toString();
+    public InsertDataConnection(
+        final ExecutionContext context,
+        final KafkaProducer<String, String> producer,
+        final String topic,
+        final int partition,
+        final ProxyRequest request
+    ) {
+        this.context = context;
+        this.producer = producer;
+        this.topic = topic;
+        this.partition = partition;
+        this.request = request;
     }
 
-    return key;
-  }
+    @Override
+    public WriteStream<Buffer> write(Buffer content) {
+        buffer.appendBuffer(content);
+        return this;
+    }
+
+    @Override
+    public void end() {
+        KafkaProducerRecord<String, String> record = KafkaProducerRecord.create(
+            topic,
+            getKey(context),
+            buffer.toString(),
+            (partition != -1) ? partition : null
+        );
+
+        setHeaders(record);
+
+        producer
+            .send(record)
+            .onFailure(
+                new Handler<Throwable>() {
+                    @Override
+                    public void handle(Throwable event) {
+                        responseHandler.handle(new StatusResponse(HttpStatusCode.INTERNAL_SERVER_ERROR_500));
+                        producer.close();
+                    }
+                }
+            )
+            .onSuccess(
+                new Handler<RecordMetadata>() {
+                    @Override
+                    public void handle(RecordMetadata event) {
+                        responseHandler.handle(new StatusResponse(HttpStatusCode.CREATED_201));
+                    }
+                }
+            );
+    }
+
+    private void setHeaders(KafkaProducerRecord<String, String> record) {
+        request.headers().forEach((s, o) -> record.addHeader(s, o.get(0)));
+    }
+
+    private String getKey(ExecutionContext context) {
+        String key = (String) context.getAttribute(CONTEXT_ATTRIBUTE_KAFKA_RECORD_KEY);
+        if (key == null) {
+            key = UUID.random().toString();
+        }
+
+        return key;
+    }
 }

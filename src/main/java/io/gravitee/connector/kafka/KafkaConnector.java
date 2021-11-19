@@ -38,11 +38,14 @@ import io.vertx.core.Vertx;
 import io.vertx.kafka.client.consumer.KafkaConsumer;
 import io.vertx.kafka.client.producer.KafkaProducer;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -65,6 +68,8 @@ public class KafkaConnector
   static final String CONTEXT_ATTRIBUTE_KAFKA_GROUP_ID =
     KAFKA_CONTEXT_ATTRIBUTE + CommonClientConfigs.GROUP_ID_CONFIG;
 
+  private final Logger LOGGER = LoggerFactory.getLogger(KafkaConnector.class);
+
   private static final String KAFKA_TOPIC_HEADER = "x-gravitee-kafka-topic";
   private static final String KAFKA_TOPIC_QUERY_PARAMETER = "topic";
   private static final String KAFKA_PARTITION_HEADER =
@@ -76,6 +81,8 @@ public class KafkaConnector
   private static final String KAFKA_GROUP_QUERY_PARAMETER = "groupid";
 
   private final KafkaEndpoint endpoint;
+  private final Map<Thread, KafkaConsumer> consumers = new ConcurrentHashMap<>();
+  private final Map<Thread, KafkaProducer> producers = new ConcurrentHashMap<>();
 
   public KafkaConnector(final KafkaEndpoint endpoint) {
     this.endpoint = endpoint;
@@ -111,7 +118,10 @@ public class KafkaConnector
 
     int partition = readIntValue(extractPartition(context, request));
     long offset = readLongValue(extractOffset(context, request));
-    KafkaConsumer<String, String> consumer = createConsumer(context);
+    KafkaConsumer<String, String> consumer = consumers.computeIfAbsent(
+      Thread.currentThread(),
+      createConsumer(context)
+    );
 
     consumer
       .subscribe(topic)
@@ -175,13 +185,19 @@ public class KafkaConnector
     if (
       request.method() == HttpMethod.POST || request.method() == HttpMethod.PUT
     ) {
-      KafkaProducer<String, String> producer = createProducer(context);
+      KafkaProducer<String, String> producer = producers.computeIfAbsent(
+        Thread.currentThread(),
+        createProducer(context)
+      );
 
       connectionHandler.handle(
         new InsertDataConnection(context, producer, topic, partition, request)
       );
     } else if (request.method() == HttpMethod.GET) {
-      KafkaConsumer<String, String> consumer = createConsumer(context);
+      KafkaConsumer<String, String> consumer = consumers.computeIfAbsent(
+        Thread.currentThread(),
+        createConsumer(context)
+      );
 
       connectionHandler.handle(
         new ReadDataConnection(consumer, topic, partition)
@@ -211,40 +227,42 @@ public class KafkaConnector
     }
   }
 
-  private KafkaProducer<String, String> createProducer(
+  private Function<Thread, KafkaProducer<String, String>> createProducer(
     ExecutionContext context
   ) {
-    final Map<String, String> config = endpoint
-      .getProducerConfig()
-      .getKafkaConfig();
+    return thread -> {
+      final Map<String, String> config = endpoint
+        .getProducerConfig()
+        .getKafkaConfig();
 
-    config.put(
-      org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG,
-      endpoint.target()
-    );
-    config.put(
-      CommonClientConfigs.CLIENT_DNS_LOOKUP_CONFIG,
-      ClientDnsLookup
-        .getOrDefault(endpoint.getCommonConfig().getClientDnsLookup())
-        .toString()
-    );
-
-    // Override value from external attributes
-    overrideWithContextAttributes(config, context);
-    config.put(ProducerConfig.CLIENT_ID_CONFIG, getClientId(context));
-
-    // Remove empty value
-    config
-      .entrySet()
-      .removeIf(
-        entry -> entry.getValue() == null || entry.getValue().isEmpty()
+      config.put(
+        org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG,
+        endpoint.target()
+      );
+      config.put(
+        CommonClientConfigs.CLIENT_DNS_LOOKUP_CONFIG,
+        ClientDnsLookup
+          .getOrDefault(endpoint.getCommonConfig().getClientDnsLookup())
+          .toString()
       );
 
-    return create(
-      (Function<Map<String, String>, KafkaProducer>) config1 ->
-        KafkaProducer.create(Vertx.currentContext().owner(), config1),
+      // Override value from external attributes
+      overrideWithContextAttributes(config, context);
+      config.put(ProducerConfig.CLIENT_ID_CONFIG, getClientId(context));
+
+      // Remove empty value
       config
-    );
+        .entrySet()
+        .removeIf(
+          entry -> entry.getValue() == null || entry.getValue().isEmpty()
+        );
+
+      return create(
+        (Function<Map<String, String>, KafkaProducer>) config1 ->
+          KafkaProducer.create(Vertx.currentContext().owner(), config1),
+        config
+      );
+    };
   }
 
   private void overrideWithContextAttributes(
@@ -261,39 +279,43 @@ public class KafkaConnector
     }
   }
 
-  private KafkaConsumer<String, String> createConsumer(
+  private Function<Thread, KafkaConsumer<String, String>> createConsumer(
     ExecutionContext context
   ) {
-    Map<String, String> config = endpoint.getConsumerConfig().getKafkaConfig();
+    return thread -> {
+      Map<String, String> config = endpoint
+        .getConsumerConfig()
+        .getKafkaConfig();
 
-    config.put(
-      org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG,
-      endpoint.target()
-    );
-    config.put(
-      CommonClientConfigs.CLIENT_DNS_LOOKUP_CONFIG,
-      ClientDnsLookup
-        .getOrDefault(endpoint.getCommonConfig().getClientDnsLookup())
-        .toString()
-    );
-
-    // Override value from external attributes
-    overrideWithContextAttributes(config, context);
-    config.put(ConsumerConfig.GROUP_ID_CONFIG, getGroupId(context));
-    config.put(ConsumerConfig.CLIENT_ID_CONFIG, getClientId(context));
-
-    // Remove empty value
-    config
-      .entrySet()
-      .removeIf(
-        entry -> entry.getValue() == null || entry.getValue().isEmpty()
+      config.put(
+        CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG,
+        endpoint.target()
+      );
+      config.put(
+        CommonClientConfigs.CLIENT_DNS_LOOKUP_CONFIG,
+        ClientDnsLookup
+          .getOrDefault(endpoint.getCommonConfig().getClientDnsLookup())
+          .toString()
       );
 
-    return create(
-      (Function<Map<String, String>, KafkaConsumer>) config1 ->
-        KafkaConsumer.create(Vertx.currentContext().owner(), config1),
+      // Override value from external attributes
+      overrideWithContextAttributes(config, context);
+      config.put(ConsumerConfig.GROUP_ID_CONFIG, getGroupId(context));
+      config.put(ConsumerConfig.CLIENT_ID_CONFIG, getClientId(context));
+
+      // Remove empty value
       config
-    );
+        .entrySet()
+        .removeIf(
+          entry -> entry.getValue() == null || entry.getValue().isEmpty()
+        );
+
+      return create(
+        (Function<Map<String, String>, KafkaConsumer>) config1 ->
+          KafkaConsumer.create(Vertx.currentContext().owner(), config1),
+        config
+      );
+    };
   }
 
   private <T> T create(
@@ -313,7 +335,16 @@ public class KafkaConnector
 
   @Override
   protected void doStop() throws Exception {
-    // TODO: close the consumer / producer
+    LOGGER.info(
+      "Graceful shutdown of Kafka Client for endpoint[{}] target[{}]",
+      endpoint.name(),
+      endpoint.target()
+    );
+
+    consumers.values().forEach(kafkaConsumer -> kafkaConsumer.close());
+    consumers.clear();
+    producers.values().forEach(kafkaProducer -> kafkaProducer.close());
+    producers.clear();
   }
 
   private boolean isWebSocket(ProxyRequest request) {

@@ -78,10 +78,15 @@ public class InsertDataConnection extends AbstractConnection {
     producer
       .send(record)
       .onFailure(
-        event ->
-          responseHandler.handle(
-            new StatusResponse(HttpStatusCode.INTERNAL_SERVER_ERROR_500)
-          )
+        new Handler<Throwable>() {
+          @Override
+          public void handle(Throwable event) {
+            responseHandler.handle(
+              new StatusResponse(HttpStatusCode.INTERNAL_SERVER_ERROR_500)
+            );
+            producer.close();
+          }
+        }
       )
       .onSuccess(
         new Handler<RecordMetadata>() {

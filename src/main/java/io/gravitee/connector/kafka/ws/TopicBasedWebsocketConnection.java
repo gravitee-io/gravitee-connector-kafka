@@ -27,30 +27,26 @@ import io.vertx.kafka.client.consumer.KafkaConsumer;
  */
 public class TopicBasedWebsocketConnection extends WebsocketConnection {
 
-  private final String topic;
+    private final String topic;
 
-  public TopicBasedWebsocketConnection(
-    KafkaConsumer<String, String> consumer,
-    WebSocketProxyRequest proxyRequest,
-    String topic
-  ) {
-    super(consumer, proxyRequest);
-    this.topic = topic;
-  }
+    public TopicBasedWebsocketConnection(KafkaConsumer<String, String> consumer, WebSocketProxyRequest proxyRequest, String topic) {
+        super(consumer, proxyRequest);
+        this.topic = topic;
+    }
 
-  @Override
-  public void listen() {
-    responseHandler.handle(new SwitchProtocolResponse());
+    @Override
+    public void listen() {
+        responseHandler.handle(new SwitchProtocolResponse());
 
-    Future<Void> subscribe = consumer
-      .subscribe(topic)
-      .onComplete(
-        new Handler<AsyncResult<Void>>() {
-          @Override
-          public void handle(AsyncResult<Void> event) {
-            System.out.println(event);
-          }
-        }
-      );
-  }
+        Future<Void> subscribe = consumer
+            .subscribe(topic)
+            .onComplete(
+                new Handler<AsyncResult<Void>>() {
+                    @Override
+                    public void handle(AsyncResult<Void> event) {
+                        System.out.println(event);
+                    }
+                }
+            );
+    }
 }

@@ -24,49 +24,49 @@ import io.gravitee.gateway.api.stream.ReadStream;
 
 public class SwitchProtocolResponse implements Response {
 
-  private Handler<Buffer> bodyHandler;
-  private Handler<Void> endHandler;
+    private Handler<Buffer> bodyHandler;
+    private Handler<Void> endHandler;
 
-  private final HttpHeaders httpHeaders = new HttpHeaders();
+    private final HttpHeaders httpHeaders = new HttpHeaders();
 
-  @Override
-  public int status() {
-    return HttpStatusCode.SWITCHING_PROTOCOLS_101;
-  }
+    @Override
+    public int status() {
+        return HttpStatusCode.SWITCHING_PROTOCOLS_101;
+    }
 
-  @Override
-  public HttpHeaders headers() {
-    return httpHeaders;
-  }
+    @Override
+    public HttpHeaders headers() {
+        return httpHeaders;
+    }
 
-  @Override
-  public Response bodyHandler(Handler<Buffer> bodyHandler) {
-    this.bodyHandler = bodyHandler;
-    return this;
-  }
+    @Override
+    public Response bodyHandler(Handler<Buffer> bodyHandler) {
+        this.bodyHandler = bodyHandler;
+        return this;
+    }
 
-  Handler<Buffer> bodyHandler() {
-    return this.bodyHandler;
-  }
+    Handler<Buffer> bodyHandler() {
+        return this.bodyHandler;
+    }
 
-  @Override
-  public Response endHandler(Handler<Void> endHandler) {
-    this.endHandler = endHandler;
-    return this;
-  }
+    @Override
+    public Response endHandler(Handler<Void> endHandler) {
+        this.endHandler = endHandler;
+        return this;
+    }
 
-  Handler<Void> endHandler() {
-    return this.endHandler;
-  }
+    Handler<Void> endHandler() {
+        return this.endHandler;
+    }
 
-  @Override
-  public ReadStream<Buffer> resume() {
-    endHandler.handle(null);
-    return this;
-  }
+    @Override
+    public ReadStream<Buffer> resume() {
+        endHandler.handle(null);
+        return this;
+    }
 
-  @Override
-  public boolean connected() {
-    return false;
-  }
+    @Override
+    public boolean connected() {
+        return false;
+    }
 }

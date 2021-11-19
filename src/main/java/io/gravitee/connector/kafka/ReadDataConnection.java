@@ -34,78 +34,57 @@ import java.time.Duration;
  */
 public class ReadDataConnection extends AbstractConnection {
 
-  private final KafkaConsumer<String, String> consumer;
-  private final String topic;
-  private final int partition;
+    private final KafkaConsumer<String, String> consumer;
+    private final String topic;
+    private final int partition;
 
-  public ReadDataConnection(
-    final KafkaConsumer<String, String> consumer,
-    final String topic,
-    final int partition
-  ) {
-    this.consumer = consumer;
-    this.topic = topic;
-    this.partition = partition;
-  }
+    public ReadDataConnection(final KafkaConsumer<String, String> consumer, final String topic, final int partition) {
+        this.consumer = consumer;
+        this.topic = topic;
+        this.partition = partition;
+    }
 
-  @Override
-  public WriteStream<Buffer> write(Buffer content) {
-    return this;
-  }
+    @Override
+    public WriteStream<Buffer> write(Buffer content) {
+        return this;
+    }
 
-  @Override
-  public void end() {
-    consumer
-      .assign(new TopicPartition(topic, partition))
-      .onSuccess(
-        new Handler<Void>() {
-          @Override
-          public void handle(Void event) {
-            consumer
-              //TODO: How could we configure polling timeout?
-              // Should it be managed by the consumer or from configuration?
-              .poll(Duration.ofMillis(10000))
-              .onSuccess(
-                records -> {
-                  if (records.isEmpty()) {
-                    responseHandler.handle(
-                      new StatusResponse(HttpStatusCode.NOT_FOUND_404)
-                    );
-                  } else {
-                    // TODO: Only takes the first one for now, then manage bulk
-                    KafkaConsumerRecord<String, String> record = records.recordAt(
-                      0
-                    );
+    @Override
+    public void end() {
+        consumer
+            .assign(new TopicPartition(topic, partition))
+            .onSuccess(
+                new Handler<Void>() {
+                    @Override
+                    public void handle(Void event) {
+                        consumer
+                            //TODO: How could we configure polling timeout?
+                            // Should it be managed by the consumer or from configuration?
+                            .poll(Duration.ofMillis(10000))
+                            .onSuccess(
+                                records -> {
+                                    if (records.isEmpty()) {
+                                        responseHandler.handle(new StatusResponse(HttpStatusCode.NOT_FOUND_404));
+                                    } else {
+                                        // TODO: Only takes the first one for now, then manage bulk
+                                        KafkaConsumerRecord<String, String> record = records.recordAt(0);
 
-                    RecordResponse response = new RecordResponse(
-                      HttpStatusCode.OK_200
-                    );
-                    response.headers().set("x-kafka-record-id", record.key());
-                    responseHandler.handle(response);
-                    response
-                      .bodyHandler()
-                      .handle(
-                        Buffer.buffer(JsonRecordFormatter.format(record))
-                      );
-                    response.endHandler().handle(null);
-                  }
+                                        RecordResponse response = new RecordResponse(HttpStatusCode.OK_200);
+                                        response.headers().set("x-kafka-record-id", record.key());
+                                        responseHandler.handle(response);
+                                        response.bodyHandler().handle(Buffer.buffer(JsonRecordFormatter.format(record)));
+                                        response.endHandler().handle(null);
+                                    }
+                                }
+                            )
+                            .onFailure(
+                                cause -> {
+                                    responseHandler.handle(new StatusResponse(HttpStatusCode.INTERNAL_SERVER_ERROR_500));
+                                }
+                            );
+                    }
                 }
-              )
-              .onFailure(
-                cause -> {
-                  responseHandler.handle(
-                    new StatusResponse(HttpStatusCode.INTERNAL_SERVER_ERROR_500)
-                  );
-                }
-              );
-          }
-        }
-      )
-      .onFailure(
-        cause ->
-          responseHandler.handle(
-            new StatusResponse(HttpStatusCode.INTERNAL_SERVER_ERROR_500)
-          )
-      );
-  }
+            )
+            .onFailure(cause -> responseHandler.handle(new StatusResponse(HttpStatusCode.INTERNAL_SERVER_ERROR_500)));
+    }
 }

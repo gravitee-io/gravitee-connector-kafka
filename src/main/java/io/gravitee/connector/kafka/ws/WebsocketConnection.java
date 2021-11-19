@@ -28,42 +28,32 @@ import io.vertx.kafka.client.consumer.KafkaConsumer;
  */
 public abstract class WebsocketConnection extends AbstractConnection {
 
-  protected final KafkaConsumer<String, String> consumer;
-  protected final WebSocketProxyRequest proxyRequest;
+    protected final KafkaConsumer<String, String> consumer;
+    protected final WebSocketProxyRequest proxyRequest;
 
-  protected WebsocketConnection(
-    final KafkaConsumer<String, String> consumer,
-    final WebSocketProxyRequest proxyRequest
-  ) {
-    this.consumer = consumer;
-    this.proxyRequest = proxyRequest;
+    protected WebsocketConnection(final KafkaConsumer<String, String> consumer, final WebSocketProxyRequest proxyRequest) {
+        this.consumer = consumer;
+        this.proxyRequest = proxyRequest;
 
-    consumer
-      .handler(
-        event ->
-          proxyRequest.write(
-            new WebSocketFrame(
-              io.vertx.core.http.WebSocketFrame.textFrame(
-                JsonRecordFormatter.format(event),
-                true
-              )
+        consumer
+            .handler(
+                event ->
+                    proxyRequest.write(
+                        new WebSocketFrame(io.vertx.core.http.WebSocketFrame.textFrame(JsonRecordFormatter.format(event), true))
+                    )
             )
-          )
-      )
-      .endHandler(event -> proxyRequest.close());
+            .endHandler(event -> proxyRequest.close());
 
-    proxyRequest.closeHandler(
-      result -> consumer.unsubscribe().onComplete(event -> consumer.close())
-    );
-  }
+        proxyRequest.closeHandler(result -> consumer.unsubscribe().onComplete(event -> consumer.close()));
+    }
 
-  @Override
-  public WriteStream<Buffer> write(Buffer content) {
-    return this;
-  }
+    @Override
+    public WriteStream<Buffer> write(Buffer content) {
+        return this;
+    }
 
-  @Override
-  public void end() {}
+    @Override
+    public void end() {}
 
-  public abstract void listen();
+    public abstract void listen();
 }

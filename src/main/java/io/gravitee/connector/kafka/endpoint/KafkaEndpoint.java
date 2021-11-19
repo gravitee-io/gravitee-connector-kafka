@@ -27,45 +27,45 @@ import io.gravitee.connector.api.AbstractEndpoint;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class KafkaEndpoint extends AbstractEndpoint {
 
-  @JsonProperty("common")
-  private CommonConfig commonConfig = new CommonConfig();
+    @JsonProperty("common")
+    private CommonConfig commonConfig = new CommonConfig();
 
-  @JsonProperty("consumer")
-  private ConsumerConfig consumerConfig = new ConsumerConfig();
+    @JsonProperty("consumer")
+    private ConsumerConfig consumerConfig = new ConsumerConfig();
 
-  @JsonProperty("producer")
-  private ProducerConfig producerConfig = new ProducerConfig();
+    @JsonProperty("producer")
+    private ProducerConfig producerConfig = new ProducerConfig();
 
-  @JsonCreator
-  public KafkaEndpoint(
-    @JsonProperty(value = "type") String type,
-    @JsonProperty(value = "name", required = true) String name,
-    @JsonProperty(value = "target", required = true) String target
-  ) {
-    super(type != null ? type : "kafka", name, target);
-  }
+    @JsonCreator
+    public KafkaEndpoint(
+        @JsonProperty(value = "type") String type,
+        @JsonProperty(value = "name", required = true) String name,
+        @JsonProperty(value = "target", required = true) String target
+    ) {
+        super(type != null ? type : "kafka", name, target);
+    }
 
-  public CommonConfig getCommonConfig() {
-    return commonConfig;
-  }
+    public CommonConfig getCommonConfig() {
+        return commonConfig;
+    }
 
-  public void setCommonConfig(CommonConfig commonConfig) {
-    this.commonConfig = commonConfig;
-  }
+    public void setCommonConfig(CommonConfig commonConfig) {
+        this.commonConfig = commonConfig;
+    }
 
-  public ConsumerConfig getConsumerConfig() {
-    return consumerConfig;
-  }
+    public ConsumerConfig getConsumerConfig() {
+        return consumerConfig;
+    }
 
-  public void setConsumerConfig(ConsumerConfig consumerConfig) {
-    this.consumerConfig = consumerConfig;
-  }
+    public void setConsumerConfig(ConsumerConfig consumerConfig) {
+        this.consumerConfig = consumerConfig;
+    }
 
-  public ProducerConfig getProducerConfig() {
-    return producerConfig;
-  }
+    public ProducerConfig getProducerConfig() {
+        return producerConfig;
+    }
 
-  public void setProducerConfig(ProducerConfig producerConfig) {
-    this.producerConfig = producerConfig;
-  }
+    public void setProducerConfig(ProducerConfig producerConfig) {
+        this.producerConfig = producerConfig;
+    }
 }

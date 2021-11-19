@@ -29,31 +29,21 @@ import java.util.Collections;
  * @author David BRASSELY (david.brassely at graviteesource.com)
  * @author GraviteeSource Team
  */
-public class KafkaConnectorFactory
-  implements ConnectorFactory<Connector<Connection, ProxyRequest>> {
+public class KafkaConnectorFactory implements ConnectorFactory<Connector<Connection, ProxyRequest>> {
 
-  private static final Collection<String> SUPPORTED_PROTOCOLS = Collections.singletonList(
-    "kafka"
-  );
+    private static final Collection<String> SUPPORTED_PROTOCOLS = Collections.singletonList("kafka");
 
-  private final KafkaEndpointFactory endpointFactory = new KafkaEndpointFactory();
+    private final KafkaEndpointFactory endpointFactory = new KafkaEndpointFactory();
 
-  @Override
-  public Collection<String> supportedTypes() {
-    return SUPPORTED_PROTOCOLS;
-  }
+    @Override
+    public Collection<String> supportedTypes() {
+        return SUPPORTED_PROTOCOLS;
+    }
 
-  @Override
-  public Connector<Connection, ProxyRequest> create(
-    String target,
-    String configuration,
-    ConnectorBuilder builder
-  ) {
-    KafkaEndpoint kafkaEndpoint = endpointFactory.create(
-      configuration,
-      builder.getMapper()
-    );
+    @Override
+    public Connector<Connection, ProxyRequest> create(String target, String configuration, ConnectorBuilder builder) {
+        KafkaEndpoint kafkaEndpoint = endpointFactory.create(configuration, builder.getMapper());
 
-    return new KafkaConnector(kafkaEndpoint);
-  }
+        return new KafkaConnector(kafkaEndpoint);
+    }
 }

@@ -28,41 +28,41 @@ import io.vertx.kafka.client.consumer.KafkaConsumer;
  */
 public class PartitionBasedWebsocketConnection extends WebsocketConnection {
 
-  private final String topic;
-  private final int partition;
-  private final long offset;
+    private final String topic;
+    private final int partition;
+    private final long offset;
 
-  public PartitionBasedWebsocketConnection(
-    final KafkaConsumer<String, String> consumer,
-    final WebSocketProxyRequest proxyRequest,
-    final String topic,
-    final int partition,
-    final long offset
-  ) {
-    super(consumer, proxyRequest);
-    this.topic = topic;
-    this.partition = partition;
-    this.offset = offset;
-  }
-
-  @Override
-  public void listen() {
-    responseHandler.handle(new SwitchProtocolResponse());
-
-    Future<Void> readFuture;
-
-    if (offset != -1) {
-      readFuture = consumer.seek(new TopicPartition(topic, partition), offset);
-    } else {
-      readFuture = consumer.assign(new TopicPartition(topic, partition));
+    public PartitionBasedWebsocketConnection(
+        final KafkaConsumer<String, String> consumer,
+        final WebSocketProxyRequest proxyRequest,
+        final String topic,
+        final int partition,
+        final long offset
+    ) {
+        super(consumer, proxyRequest);
+        this.topic = topic;
+        this.partition = partition;
+        this.offset = offset;
     }
-    Future<Void> assignment = readFuture.onComplete(
-      new Handler<AsyncResult<Void>>() {
-        @Override
-        public void handle(AsyncResult<Void> event) {
-          System.out.println(event);
+
+    @Override
+    public void listen() {
+        responseHandler.handle(new SwitchProtocolResponse());
+
+        Future<Void> readFuture;
+
+        if (offset != -1) {
+            readFuture = consumer.seek(new TopicPartition(topic, partition), offset);
+        } else {
+            readFuture = consumer.assign(new TopicPartition(topic, partition));
         }
-      }
-    );
-  }
+        Future<Void> assignment = readFuture.onComplete(
+            new Handler<AsyncResult<Void>>() {
+                @Override
+                public void handle(AsyncResult<Void> event) {
+                    System.out.println(event);
+                }
+            }
+        );
+    }
 }

@@ -34,10 +34,8 @@
     <name>Gravitee.io - Connector - Kafka</name>
 
     <properties>
-        <gravitee-bom.version>1.2</gravitee-bom.version>
+        <gravitee-bom.version>1.4</gravitee-bom.version>
         <gravitee-connector-api.version>1.0.0-SNAPSHOT</gravitee-connector-api.version>
-
-        <vertx.version>4.1.5</vertx.version>
     </properties>
 
     <dependencyManagement>
@@ -65,7 +63,6 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-kafka-client</artifactId>
-            <version>${vertx.version}</version>
         </dependency>
 
         <dependency>

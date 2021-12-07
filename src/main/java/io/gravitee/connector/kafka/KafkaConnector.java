@@ -33,13 +33,11 @@ import io.gravitee.gateway.api.handler.Handler;
 import io.gravitee.gateway.api.proxy.ProxyRequest;
 import io.gravitee.gateway.api.proxy.ws.WebSocketProxyRequest;
 import io.netty.handler.codec.http.HttpHeaderValues;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Vertx;
 import io.vertx.kafka.client.consumer.KafkaConsumer;
 import io.vertx.kafka.client.producer.KafkaProducer;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -58,6 +56,7 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
     static final String CONTEXT_ATTRIBUTE_KAFKA_OFFSET = KAFKA_CONTEXT_ATTRIBUTE + "offset";
     static final String CONTEXT_ATTRIBUTE_KAFKA_PARTITION = KAFKA_CONTEXT_ATTRIBUTE + "partition";
     static final String CONTEXT_ATTRIBUTE_KAFKA_TOPIC = KAFKA_CONTEXT_ATTRIBUTE + "topic";
+    static final String CONTEXT_ATTRIBUTE_KAFKA_TIMEOUT = KAFKA_CONTEXT_ATTRIBUTE + "timeout";
     static final String CONTEXT_ATTRIBUTE_KAFKA_CLIENT_ID = KAFKA_CONTEXT_ATTRIBUTE + CommonClientConfigs.CLIENT_ID_CONFIG;
     static final String CONTEXT_ATTRIBUTE_KAFKA_GROUP_ID = KAFKA_CONTEXT_ATTRIBUTE + CommonClientConfigs.GROUP_ID_CONFIG;
 
@@ -71,6 +70,8 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
     private static final String KAFKA_OFFSET_QUERY_PARAMETER = "offset";
     private static final String KAFKA_GROUP_HEADER = "x-gravitee-kafka-groupid";
     private static final String KAFKA_GROUP_QUERY_PARAMETER = "groupid";
+    private static final String KAFKA_TIMEOUT_HEADER = "x-gravitee-kafka-timeout";
+    private static final String KAFKA_TIMEOUT_QUERY_PARAMETER = "timeout";
 
     private final KafkaEndpoint endpoint;
     private final Map<Thread, KafkaConsumer> consumers = new ConcurrentHashMap<>();
@@ -108,53 +109,33 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
         long offset = readLongValue(extractOffset(context, request));
         KafkaConsumer<String, String> consumer = consumers.computeIfAbsent(Thread.currentThread(), createConsumer(context));
 
-        consumer
-            .subscribe(topic)
-            .onComplete(
-                new io.vertx.core.Handler<AsyncResult<Void>>() {
-                    @Override
-                    public void handle(AsyncResult<Void> event) {
-                        if (event.failed()) {
-                            DirectResponseConnection connection = new DirectResponseConnection();
-                            connectionHandler.handle(connection);
+        wsRequest
+            .upgrade()
+            .thenAccept(
+                webSocketProxyRequest -> {
+                    WebsocketConnection connection;
 
-                            wsRequest.reject(HttpStatusCode.BAD_GATEWAY_502);
-                        } else {
-                            ((WebSocketProxyRequest) request).upgrade()
-                                .thenAccept(
-                                    new Consumer<WebSocketProxyRequest>() {
-                                        @Override
-                                        public void accept(WebSocketProxyRequest webSocketProxyRequest) {
-                                            WebsocketConnection connection;
-
-                                            if (partition == -1) {
-                                                connection =
-                                                    new TopicBasedWebsocketConnection(consumer, (WebSocketProxyRequest) request, topic);
-                                            } else {
-                                                connection =
-                                                    new PartitionBasedWebsocketConnection(
-                                                        consumer,
-                                                        (WebSocketProxyRequest) request,
-                                                        topic,
-                                                        partition,
-                                                        offset
-                                                    );
-                                            }
-
-                                            connectionHandler.handle(connection);
-
-                                            connection.listen();
-                                        }
-                                    }
-                                );
-                        }
+                    if (partition == -1) {
+                        connection = new TopicBasedWebsocketConnection(consumer, wsRequest, topic);
+                    } else {
+                        connection = new PartitionBasedWebsocketConnection(consumer, wsRequest, topic, partition, offset);
                     }
+
+                    connectionHandler.handle(connection);
+
+                    connection
+                        .listen()
+                        .onFailure(
+                            event -> LOGGER.error("Unexpected error while listening for a given topic for websocket", event.getCause())
+                        );
                 }
             );
     }
 
     private void handleRequest(ExecutionContext context, ProxyRequest request, String topic, Handler<Connection> connectionHandler) {
         final int partition = readIntValue(extractPartition(context, request));
+        final int offset = readIntValue(extractOffset(context, request));
+        final int timeout = readIntValue(extractTimeout(context, request));
 
         if (request.method() == HttpMethod.POST || request.method() == HttpMethod.PUT) {
             KafkaProducer<String, String> producer = producers.computeIfAbsent(Thread.currentThread(), createProducer(context));
@@ -163,7 +144,7 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
         } else if (request.method() == HttpMethod.GET) {
             KafkaConsumer<String, String> consumer = consumers.computeIfAbsent(Thread.currentThread(), createConsumer(context));
 
-            connectionHandler.handle(new ReadDataConnection(consumer, topic, partition));
+            connectionHandler.handle(new ReadDataConnection(consumer, topic, partition, offset, timeout));
         } else {
             DirectResponseConnection connection = new DirectResponseConnection();
             connectionHandler.handle(connection);
@@ -373,6 +354,18 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
             offset = request.headers().getFirst(KAFKA_OFFSET_HEADER);
             if (offset == null || offset.isEmpty()) {
                 offset = request.parameters().getFirst(KAFKA_OFFSET_QUERY_PARAMETER);
+            }
+        }
+
+        return offset;
+    }
+
+    private String extractTimeout(ExecutionContext context, ProxyRequest request) {
+        String offset = (String) context.getAttribute(CONTEXT_ATTRIBUTE_KAFKA_TIMEOUT);
+        if (offset == null || offset.isEmpty()) {
+            offset = request.headers().getFirst(KAFKA_TIMEOUT_HEADER);
+            if (offset == null || offset.isEmpty()) {
+                offset = request.parameters().getFirst(KAFKA_TIMEOUT_QUERY_PARAMETER);
             }
         }
 

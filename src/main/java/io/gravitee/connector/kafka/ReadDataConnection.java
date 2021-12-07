@@ -15,6 +15,7 @@
  */
 package io.gravitee.connector.kafka;
 
+import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.HttpStatusCode;
 import io.gravitee.connector.api.AbstractConnection;
 import io.gravitee.connector.api.response.StatusResponse;
@@ -22,11 +23,13 @@ import io.gravitee.connector.kafka.json.JsonRecordFormatter;
 import io.gravitee.connector.kafka.response.RecordResponse;
 import io.gravitee.gateway.api.buffer.Buffer;
 import io.gravitee.gateway.api.stream.WriteStream;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.kafka.client.common.TopicPartition;
 import io.vertx.kafka.client.consumer.KafkaConsumer;
-import io.vertx.kafka.client.consumer.KafkaConsumerRecord;
 import java.time.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -34,14 +37,26 @@ import java.time.Duration;
  */
 public class ReadDataConnection extends AbstractConnection {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReadDataConnection.class);
+
     private final KafkaConsumer<String, String> consumer;
     private final String topic;
-    private final int partition;
+    private final int partition, offset, timeout;
 
-    public ReadDataConnection(final KafkaConsumer<String, String> consumer, final String topic, final int partition) {
+    private static final int DEFAULT_POLLING_TIMEOUT = 5000;
+
+    public ReadDataConnection(
+        final KafkaConsumer<String, String> consumer,
+        final String topic,
+        final int partition,
+        final int offset,
+        final int timeout
+    ) {
         this.consumer = consumer;
         this.topic = topic;
         this.partition = partition;
+        this.offset = offset;
+        this.timeout = (timeout == -1) ? DEFAULT_POLLING_TIMEOUT : timeout;
     }
 
     @Override
@@ -51,40 +66,55 @@ public class ReadDataConnection extends AbstractConnection {
 
     @Override
     public void end() {
-        consumer
-            .assign(new TopicPartition(topic, partition))
+        Future<Void> subFut;
+
+        if (partition != -1) {
+            TopicPartition partition = new TopicPartition(topic, this.partition);
+            subFut = consumer.assign(partition);
+            if (offset != -1) {
+                subFut = subFut.compose(v -> consumer.seek(partition, offset));
+            } else {
+                subFut = subFut.compose(v -> consumer.seekToBeginning(partition));
+            }
+        } else {
+            subFut = consumer.subscribe(topic);
+        }
+
+        subFut
             .onSuccess(
                 new Handler<Void>() {
                     @Override
                     public void handle(Void event) {
                         consumer
-                            //TODO: How could we configure polling timeout?
-                            // Should it be managed by the consumer or from configuration?
-                            .poll(Duration.ofMillis(10000))
+                            .poll(Duration.ofMillis(timeout))
                             .onSuccess(
                                 records -> {
                                     if (records.isEmpty()) {
                                         responseHandler.handle(new StatusResponse(HttpStatusCode.NOT_FOUND_404));
                                     } else {
-                                        // TODO: Only takes the first one for now, then manage bulk
-                                        KafkaConsumerRecord<String, String> record = records.recordAt(0);
-
+                                        Buffer data = Buffer.buffer(JsonRecordFormatter.toString(records, true));
                                         RecordResponse response = new RecordResponse(HttpStatusCode.OK_200);
-                                        response.headers().set("x-kafka-record-id", record.key());
+                                        response.headers().set(HttpHeaders.CONTENT_LENGTH, Integer.toString(data.length()));
                                         responseHandler.handle(response);
-                                        response.bodyHandler().handle(Buffer.buffer(JsonRecordFormatter.format(record)));
+                                        response.bodyHandler().handle(data);
                                         response.endHandler().handle(null);
                                     }
                                 }
                             )
                             .onFailure(
-                                cause -> {
+                                event1 -> {
+                                    LOGGER.error("Kafka consume unable to poll a given partition", event1.getCause());
                                     responseHandler.handle(new StatusResponse(HttpStatusCode.INTERNAL_SERVER_ERROR_500));
                                 }
                             );
                     }
                 }
             )
-            .onFailure(cause -> responseHandler.handle(new StatusResponse(HttpStatusCode.INTERNAL_SERVER_ERROR_500)));
+            .onFailure(
+                event1 -> {
+                    LOGGER.error("Kafka consume unable to seek for a given partition", event1.getCause());
+                    responseHandler.handle(new StatusResponse(HttpStatusCode.INTERNAL_SERVER_ERROR_500));
+                }
+            );
     }
 }

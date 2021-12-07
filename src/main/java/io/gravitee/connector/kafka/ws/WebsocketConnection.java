@@ -20,6 +20,7 @@ import io.gravitee.connector.kafka.json.JsonRecordFormatter;
 import io.gravitee.gateway.api.buffer.Buffer;
 import io.gravitee.gateway.api.proxy.ws.WebSocketProxyRequest;
 import io.gravitee.gateway.api.stream.WriteStream;
+import io.vertx.core.Future;
 import io.vertx.kafka.client.consumer.KafkaConsumer;
 
 /**
@@ -39,7 +40,7 @@ public abstract class WebsocketConnection extends AbstractConnection {
             .handler(
                 event ->
                     proxyRequest.write(
-                        new WebSocketFrame(io.vertx.core.http.WebSocketFrame.textFrame(JsonRecordFormatter.format(event), true))
+                        new WebSocketFrame(io.vertx.core.http.WebSocketFrame.textFrame(JsonRecordFormatter.toString(event, false), true))
                     )
             )
             .endHandler(event -> proxyRequest.close());
@@ -55,5 +56,5 @@ public abstract class WebsocketConnection extends AbstractConnection {
     @Override
     public void end() {}
 
-    public abstract void listen();
+    public abstract Future<Void> listen();
 }

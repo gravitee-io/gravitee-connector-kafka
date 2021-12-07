@@ -16,9 +16,7 @@
 package io.gravitee.connector.kafka.ws;
 
 import io.gravitee.gateway.api.proxy.ws.WebSocketProxyRequest;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
-import io.vertx.core.Handler;
 import io.vertx.kafka.client.common.TopicPartition;
 import io.vertx.kafka.client.consumer.KafkaConsumer;
 
@@ -46,23 +44,11 @@ public class PartitionBasedWebsocketConnection extends WebsocketConnection {
     }
 
     @Override
-    public void listen() {
+    public Future<Void> listen() {
         responseHandler.handle(new SwitchProtocolResponse());
 
-        Future<Void> readFuture;
-
-        if (offset != -1) {
-            readFuture = consumer.seek(new TopicPartition(topic, partition), offset);
-        } else {
-            readFuture = consumer.assign(new TopicPartition(topic, partition));
-        }
-        Future<Void> assignment = readFuture.onComplete(
-            new Handler<AsyncResult<Void>>() {
-                @Override
-                public void handle(AsyncResult<Void> event) {
-                    System.out.println(event);
-                }
-            }
-        );
+        return (offset != -1)
+            ? consumer.seek(new TopicPartition(topic, partition), offset)
+            : consumer.assign(new TopicPartition(topic, partition));
     }
 }

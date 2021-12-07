@@ -27,6 +27,8 @@ import io.vertx.core.Handler;
 import io.vertx.kafka.client.producer.KafkaProducer;
 import io.vertx.kafka.client.producer.KafkaProducerRecord;
 import io.vertx.kafka.client.producer.RecordMetadata;
+import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -96,7 +98,7 @@ public class InsertDataConnection extends AbstractConnection {
     }
 
     private void setHeaders(KafkaProducerRecord<String, String> record) {
-        request.headers().forEach((s, o) -> record.addHeader(s, o.get(0)));
+        request.headers().forEach(stringStringEntry -> record.addHeader(stringStringEntry.getKey(), stringStringEntry.getValue()));
     }
 
     private String getKey(ExecutionContext context) {

@@ -17,10 +17,10 @@ package io.gravitee.connector.kafka.json;
 
 import io.gravitee.connector.kafka.model.ConsumerRecordHeader;
 import io.gravitee.connector.kafka.model.RecordHeader;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.kafka.client.consumer.KafkaConsumerRecord;
-import io.vertx.kafka.client.producer.KafkaHeader;
-import java.util.function.Function;
+import io.vertx.kafka.client.consumer.KafkaConsumerRecords;
 import java.util.stream.Collectors;
 
 /**
@@ -29,7 +29,12 @@ import java.util.stream.Collectors;
  */
 public class JsonRecordFormatter {
 
-    public static <K, V> String format(KafkaConsumerRecord<K, V> record) {
+    public static <K, V> String toString(KafkaConsumerRecord<K, V> record, boolean pretty) {
+        JsonObject json = toJsonObject(record);
+        return (pretty) ? json.encodePrettily() : json.encode();
+    }
+
+    public static <K, V> JsonObject toJsonObject(KafkaConsumerRecord<K, V> record) {
         JsonObject json = new JsonObject();
 
         json.put("metadata", new ConsumerRecordHeader<>(record.key(), record.partition(), record.offset(), record.timestamp()));
@@ -45,6 +50,16 @@ public class JsonRecordFormatter {
         }
         json.put("payload", record.value());
 
-        return json.toString();
+        return json;
+    }
+
+    public static <K, V> String toString(KafkaConsumerRecords<K, V> records, boolean pretty) {
+        JsonArray json = new JsonArray();
+
+        for (int i = 0; i < records.size(); i++) {
+            json.add(toJsonObject(records.recordAt(i)));
+        }
+
+        return (pretty) ? json.encodePrettily() : json.encode();
     }
 }

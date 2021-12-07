@@ -16,9 +16,7 @@
 package io.gravitee.connector.kafka.ws;
 
 import io.gravitee.gateway.api.proxy.ws.WebSocketProxyRequest;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
-import io.vertx.core.Handler;
 import io.vertx.kafka.client.consumer.KafkaConsumer;
 
 /**
@@ -35,18 +33,9 @@ public class TopicBasedWebsocketConnection extends WebsocketConnection {
     }
 
     @Override
-    public void listen() {
+    public Future<Void> listen() {
         responseHandler.handle(new SwitchProtocolResponse());
 
-        Future<Void> subscribe = consumer
-            .subscribe(topic)
-            .onComplete(
-                new Handler<AsyncResult<Void>>() {
-                    @Override
-                    public void handle(AsyncResult<Void> event) {
-                        System.out.println(event);
-                    }
-                }
-            );
+        return consumer.subscribe(topic);
     }
 }

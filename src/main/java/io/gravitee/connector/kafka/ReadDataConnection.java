@@ -99,12 +99,15 @@ public class ReadDataConnection extends AbstractConnection {
                                         response.bodyHandler().handle(data);
                                         response.endHandler().handle(null);
                                     }
+
+                                    consumer.close();
                                 }
                             )
                             .onFailure(
                                 event1 -> {
                                     LOGGER.error("Kafka consume unable to poll a given partition", event1.getCause());
                                     responseHandler.handle(new StatusResponse(HttpStatusCode.INTERNAL_SERVER_ERROR_500));
+                                    consumer.close();
                                 }
                             );
                     }
@@ -114,6 +117,7 @@ public class ReadDataConnection extends AbstractConnection {
                 event1 -> {
                     LOGGER.error("Kafka consume unable to seek for a given partition", event1.getCause());
                     responseHandler.handle(new StatusResponse(HttpStatusCode.INTERNAL_SERVER_ERROR_500));
+                    consumer.close();
                 }
             );
     }

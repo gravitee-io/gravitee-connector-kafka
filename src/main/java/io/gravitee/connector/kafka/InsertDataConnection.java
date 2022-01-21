@@ -36,7 +36,7 @@ import java.util.function.Consumer;
  */
 public class InsertDataConnection extends AbstractConnection {
 
-    private static final String CONTEXT_ATTRIBUTE_KAFKA_RECORD_KEY = KafkaConnector.KAFKA_CONTEXT_ATTRIBUTE + "key";
+    public static final String CONTEXT_ATTRIBUTE_KAFKA_RECORD_KEY = KafkaConnector.KAFKA_CONTEXT_ATTRIBUTE + "key";
 
     private final ExecutionContext context;
     private final Buffer buffer = Buffer.buffer();
@@ -91,7 +91,14 @@ public class InsertDataConnection extends AbstractConnection {
                 new Handler<RecordMetadata>() {
                     @Override
                     public void handle(RecordMetadata event) {
-                        responseHandler.handle(new StatusResponse(HttpStatusCode.CREATED_201));
+                        StatusResponse response = new StatusResponse(HttpStatusCode.CREATED_201);
+
+                        response.headers().set(KafkaConnector.KAFKA_TOPIC_HEADER, event.getTopic());
+                        response.headers().set(KafkaConnector.KAFKA_PARTITION_HEADER, Integer.toString(event.getPartition()));
+                        response.headers().set(KafkaConnector.KAFKA_OFFSET_HEADER, Long.toString(event.getOffset()));
+                        responseHandler.handle(response);
+
+                        producer.close();
                     }
                 }
             );
@@ -105,6 +112,7 @@ public class InsertDataConnection extends AbstractConnection {
         String key = (String) context.getAttribute(CONTEXT_ATTRIBUTE_KAFKA_RECORD_KEY);
         if (key == null) {
             key = UUID.random().toString();
+            context.setAttribute(CONTEXT_ATTRIBUTE_KAFKA_RECORD_KEY, key);
         }
 
         return key;

@@ -37,7 +37,6 @@ import io.vertx.core.Vertx;
 import io.vertx.kafka.client.consumer.KafkaConsumer;
 import io.vertx.kafka.client.producer.KafkaProducer;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -62,20 +61,18 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
 
     private final Logger LOGGER = LoggerFactory.getLogger(KafkaConnector.class);
 
-    private static final String KAFKA_TOPIC_HEADER = "x-gravitee-kafka-topic";
+    static final String KAFKA_TOPIC_HEADER = "x-gravitee-kafka-topic";
     private static final String KAFKA_TOPIC_QUERY_PARAMETER = "topic";
-    private static final String KAFKA_PARTITION_HEADER = "x-gravitee-kafka-partition";
+    static final String KAFKA_PARTITION_HEADER = "x-gravitee-kafka-partition";
     private static final String KAFKA_PARTITION_QUERY_PARAMETER = "partition";
-    private static final String KAFKA_OFFSET_HEADER = "x-gravitee-kafka-offset";
+    static final String KAFKA_OFFSET_HEADER = "x-gravitee-kafka-offset";
     private static final String KAFKA_OFFSET_QUERY_PARAMETER = "offset";
-    private static final String KAFKA_GROUP_HEADER = "x-gravitee-kafka-groupid";
+    static final String KAFKA_GROUP_HEADER = "x-gravitee-kafka-groupid";
     private static final String KAFKA_GROUP_QUERY_PARAMETER = "groupid";
-    private static final String KAFKA_TIMEOUT_HEADER = "x-gravitee-kafka-timeout";
+    static final String KAFKA_TIMEOUT_HEADER = "x-gravitee-kafka-timeout";
     private static final String KAFKA_TIMEOUT_QUERY_PARAMETER = "timeout";
 
     private final KafkaEndpoint endpoint;
-    private final Map<Thread, KafkaConsumer> consumers = new ConcurrentHashMap<>();
-    private final Map<Thread, KafkaProducer> producers = new ConcurrentHashMap<>();
 
     public KafkaConnector(final KafkaEndpoint endpoint) {
         this.endpoint = endpoint;
@@ -107,7 +104,7 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
 
         int partition = readIntValue(extractPartition(context, request));
         long offset = readLongValue(extractOffset(context, request));
-        KafkaConsumer<String, String> consumer = consumers.computeIfAbsent(Thread.currentThread(), createConsumer(context));
+        KafkaConsumer<String, String> consumer = createConsumer(context);
 
         wsRequest
             .upgrade()
@@ -126,7 +123,10 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
                     connection
                         .listen()
                         .onFailure(
-                            event -> LOGGER.error("Unexpected error while listening for a given topic for websocket", event.getCause())
+                            event -> {
+                                LOGGER.error("Unexpected error while listening for a given topic for websocket", event.getCause());
+                                consumer.close();
+                            }
                         );
                 }
             );
@@ -138,11 +138,11 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
         final int timeout = readIntValue(extractTimeout(context, request));
 
         if (request.method() == HttpMethod.POST || request.method() == HttpMethod.PUT) {
-            KafkaProducer<String, String> producer = producers.computeIfAbsent(Thread.currentThread(), createProducer(context));
+            KafkaProducer<String, String> producer = createProducer(context);
 
             connectionHandler.handle(new InsertDataConnection(context, producer, topic, partition, request));
         } else if (request.method() == HttpMethod.GET) {
-            KafkaConsumer<String, String> consumer = consumers.computeIfAbsent(Thread.currentThread(), createConsumer(context));
+            KafkaConsumer<String, String> consumer = createConsumer(context);
 
             connectionHandler.handle(new ReadDataConnection(consumer, topic, partition, offset, timeout));
         } else {
@@ -168,28 +168,26 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
         }
     }
 
-    private Function<Thread, KafkaProducer<String, String>> createProducer(ExecutionContext context) {
-        return thread -> {
-            final Map<String, String> config = endpoint.getProducerConfig().getKafkaConfig();
+    private KafkaProducer<String, String> createProducer(ExecutionContext context) {
+        final Map<String, String> config = endpoint.getProducerConfig().getKafkaConfig();
 
-            config.put(org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, endpoint.target());
-            config.put(
-                CommonClientConfigs.CLIENT_DNS_LOOKUP_CONFIG,
-                ClientDnsLookup.getOrDefault(endpoint.getCommonConfig().getClientDnsLookup()).toString()
-            );
+        config.put(org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, endpoint.target());
+        config.put(
+            CommonClientConfigs.CLIENT_DNS_LOOKUP_CONFIG,
+            ClientDnsLookup.getOrDefault(endpoint.getCommonConfig().getClientDnsLookup()).toString()
+        );
 
-            // Override value from external attributes
-            overrideWithContextAttributes(config, context);
-            config.put(ProducerConfig.CLIENT_ID_CONFIG, getClientId(context));
+        // Override value from external attributes
+        overrideWithContextAttributes(config, context);
+        config.put(ProducerConfig.CLIENT_ID_CONFIG, getClientId(context));
 
-            // Remove empty value
-            config.entrySet().removeIf(entry -> entry.getValue() == null || entry.getValue().isEmpty());
+        // Remove empty value
+        config.entrySet().removeIf(entry -> entry.getValue() == null || entry.getValue().isEmpty());
 
-            return create(
-                (Function<Map<String, String>, KafkaProducer>) config1 -> KafkaProducer.create(Vertx.currentContext().owner(), config1),
-                config
-            );
-        };
+        return create(
+            (Function<Map<String, String>, KafkaProducer>) config1 -> KafkaProducer.create(Vertx.currentContext().owner(), config1),
+            config
+        );
     }
 
     private void overrideWithContextAttributes(final Map<String, String> config, ExecutionContext context) {
@@ -201,29 +199,27 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
         }
     }
 
-    private Function<Thread, KafkaConsumer<String, String>> createConsumer(ExecutionContext context) {
-        return thread -> {
-            Map<String, String> config = endpoint.getConsumerConfig().getKafkaConfig();
+    private KafkaConsumer<String, String> createConsumer(ExecutionContext context) {
+        Map<String, String> config = endpoint.getConsumerConfig().getKafkaConfig();
 
-            config.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, endpoint.target());
-            config.put(
-                CommonClientConfigs.CLIENT_DNS_LOOKUP_CONFIG,
-                ClientDnsLookup.getOrDefault(endpoint.getCommonConfig().getClientDnsLookup()).toString()
-            );
+        config.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, endpoint.target());
+        config.put(
+            CommonClientConfigs.CLIENT_DNS_LOOKUP_CONFIG,
+            ClientDnsLookup.getOrDefault(endpoint.getCommonConfig().getClientDnsLookup()).toString()
+        );
 
-            // Override value from external attributes
-            overrideWithContextAttributes(config, context);
-            config.put(ConsumerConfig.GROUP_ID_CONFIG, getGroupId(context));
-            config.put(ConsumerConfig.CLIENT_ID_CONFIG, getClientId(context));
+        // Override value from external attributes
+        overrideWithContextAttributes(config, context);
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, getGroupId(context));
+        config.put(ConsumerConfig.CLIENT_ID_CONFIG, getClientId(context));
 
-            // Remove empty value
-            config.entrySet().removeIf(entry -> entry.getValue() == null || entry.getValue().isEmpty());
+        // Remove empty value
+        config.entrySet().removeIf(entry -> entry.getValue() == null || entry.getValue().isEmpty());
 
-            return create(
-                (Function<Map<String, String>, KafkaConsumer>) config1 -> KafkaConsumer.create(Vertx.currentContext().owner(), config1),
-                config
-            );
-        };
+        return create(
+            (Function<Map<String, String>, KafkaConsumer>) config1 -> KafkaConsumer.create(Vertx.currentContext().owner(), config1),
+            config
+        );
     }
 
     private <T> T create(Function<Map<String, String>, T> function, Map<String, String> config) {
@@ -238,19 +234,9 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
         }
     }
 
-    @Override
-    protected void doStop() throws Exception {
-        LOGGER.info("Graceful shutdown of Kafka Client for endpoint[{}] target[{}]", endpoint.name(), endpoint.target());
-
-        consumers.values().forEach(kafkaConsumer -> kafkaConsumer.close());
-        consumers.clear();
-        producers.values().forEach(kafkaProducer -> kafkaProducer.close());
-        producers.clear();
-    }
-
     private boolean isWebSocket(ProxyRequest request) {
-        String connectionHeader = request.headers().getFirst(HttpHeaders.CONNECTION);
-        String upgradeHeader = request.headers().getFirst(HttpHeaders.UPGRADE);
+        String connectionHeader = request.headers().get(HttpHeaders.CONNECTION);
+        String upgradeHeader = request.headers().get(HttpHeaders.UPGRADE);
 
         return (
             request.method() == HttpMethod.GET &&
@@ -272,7 +258,7 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
         String groupId = (String) context.getAttribute(CONTEXT_ATTRIBUTE_KAFKA_GROUP_ID);
 
         if (groupId == null || groupId.isEmpty()) {
-            groupId = context.request().headers().getFirst(KAFKA_GROUP_HEADER);
+            groupId = context.request().headers().get(KAFKA_GROUP_HEADER);
             if (groupId == null || groupId.isEmpty()) {
                 groupId = context.request().parameters().getFirst(KAFKA_GROUP_QUERY_PARAMETER);
             }
@@ -298,7 +284,7 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
     private String extractTopic(ExecutionContext context, ProxyRequest request) {
         String topic = (String) context.getAttribute(CONTEXT_ATTRIBUTE_KAFKA_TOPIC);
         if (topic == null || topic.isEmpty()) {
-            topic = request.headers().getFirst(KAFKA_TOPIC_HEADER);
+            topic = request.headers().get(KAFKA_TOPIC_HEADER);
             if (topic == null || topic.isEmpty()) {
                 topic = request.parameters().getFirst(KAFKA_TOPIC_QUERY_PARAMETER);
 
@@ -330,7 +316,7 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
     private String extractPartition(ExecutionContext context, ProxyRequest request) {
         String partition = (String) context.getAttribute(CONTEXT_ATTRIBUTE_KAFKA_PARTITION);
         if (partition == null || partition.isEmpty()) {
-            partition = request.headers().getFirst(KAFKA_PARTITION_HEADER);
+            partition = request.headers().get(KAFKA_PARTITION_HEADER);
             if (partition == null || partition.isEmpty()) {
                 partition = request.parameters().getFirst(KAFKA_PARTITION_QUERY_PARAMETER);
             }
@@ -351,7 +337,7 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
     private String extractOffset(ExecutionContext context, ProxyRequest request) {
         String offset = (String) context.getAttribute(CONTEXT_ATTRIBUTE_KAFKA_OFFSET);
         if (offset == null || offset.isEmpty()) {
-            offset = request.headers().getFirst(KAFKA_OFFSET_HEADER);
+            offset = request.headers().get(KAFKA_OFFSET_HEADER);
             if (offset == null || offset.isEmpty()) {
                 offset = request.parameters().getFirst(KAFKA_OFFSET_QUERY_PARAMETER);
             }
@@ -363,7 +349,7 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
     private String extractTimeout(ExecutionContext context, ProxyRequest request) {
         String offset = (String) context.getAttribute(CONTEXT_ATTRIBUTE_KAFKA_TIMEOUT);
         if (offset == null || offset.isEmpty()) {
-            offset = request.headers().getFirst(KAFKA_TIMEOUT_HEADER);
+            offset = request.headers().get(KAFKA_TIMEOUT_HEADER);
             if (offset == null || offset.isEmpty()) {
                 offset = request.parameters().getFirst(KAFKA_TIMEOUT_QUERY_PARAMETER);
             }

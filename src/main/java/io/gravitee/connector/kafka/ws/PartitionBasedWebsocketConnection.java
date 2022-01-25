@@ -47,8 +47,13 @@ public class PartitionBasedWebsocketConnection extends WebsocketConnection {
     public Future<Void> listen() {
         responseHandler.handle(new SwitchProtocolResponse());
 
-        return (offset != -1)
-            ? consumer.seek(new TopicPartition(topic, partition), offset)
-            : consumer.assign(new TopicPartition(topic, partition));
+        final TopicPartition topicPartition = new TopicPartition(topic, partition);
+        final Future<Void> assignFuture = consumer.assign(topicPartition);
+
+        if (offset > 0) {
+            return assignFuture.flatMap(avoid -> consumer.seek(topicPartition, offset));
+        }
+
+        return assignFuture;
     }
 }

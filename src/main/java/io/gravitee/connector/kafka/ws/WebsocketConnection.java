@@ -37,11 +37,10 @@ public abstract class WebsocketConnection extends AbstractConnection {
         this.proxyRequest = proxyRequest;
 
         consumer
-            .handler(
-                event ->
-                    proxyRequest.write(
-                        new WebSocketFrame(io.vertx.core.http.WebSocketFrame.textFrame(JsonRecordFormatter.toString(event, false), true))
-                    )
+            .handler(event ->
+                proxyRequest.write(
+                    new WebSocketFrame(io.vertx.core.http.WebSocketFrame.textFrame(JsonRecordFormatter.toString(event, false), true))
+                )
             )
             .endHandler(event -> proxyRequest.close());
 

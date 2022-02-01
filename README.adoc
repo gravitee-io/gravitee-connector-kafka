@@ -1,0 +1,18 @@
+= Kafka Connector
+
+ifdef::env-github[]
+image:https://img.shields.io/static/v1?label=Available%20at&message=Gravitee.io&color=1EC9D2["Gravitee.io", link="https://download.gravitee.io/#graviteeio-apim/plugins/connectors/gravitee-connector-kafka/"]
+image:https://img.shields.io/badge/License-Apache%202.0-blue.svg["License", link="https://github.com/gravitee-io/gravitee-connector-kafka/blob/master/LICENSE.txt"]
+image:https://img.shields.io/badge/semantic--release-conventional%20commits-e10079?logo=semantic-release["Releases", link="https://github.com/gravitee-io/gravitee-connector-kafka/releases"]
+image:https://circleci.com/gh/gravitee-io/gravitee-connector-kafka.svg?style=svg["CircleCI", link="https://circleci.com/gh/gravitee-io/gravitee-connector-kafka"]
+endif::[]
+
+== Description
+
+The Kafka connector implements the SME Connector API in order to provide native integration with Apache Kafka. This connector can be leveraged in the following ways depending on your use case:
+
+* Ingest data by exposing an endpoint that transforms requests into messages that are published into an Apache Kafka topic.
+
+* Stream your Kafka events to consumers thanks to web-friendly protocols such as HTTP or Websocket, and provide real-time integration capability to your ecosystem.
+
+More information https://docs.gravitee.io/apim/3.x/apim_publisherguide_introducing_kafka.html[here]

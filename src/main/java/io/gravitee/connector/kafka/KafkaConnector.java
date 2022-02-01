@@ -108,28 +108,24 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
 
         wsRequest
             .upgrade()
-            .thenAccept(
-                webSocketProxyRequest -> {
-                    WebsocketConnection connection;
+            .thenAccept(webSocketProxyRequest -> {
+                WebsocketConnection connection;
 
-                    if (partition == -1) {
-                        connection = new TopicBasedWebsocketConnection(consumer, wsRequest, topic);
-                    } else {
-                        connection = new PartitionBasedWebsocketConnection(consumer, wsRequest, topic, partition, offset);
-                    }
-
-                    connectionHandler.handle(connection);
-
-                    connection
-                        .listen()
-                        .onFailure(
-                            event -> {
-                                LOGGER.error("Unexpected error while listening for a given topic for websocket", event.getCause());
-                                consumer.close();
-                            }
-                        );
+                if (partition == -1) {
+                    connection = new TopicBasedWebsocketConnection(consumer, wsRequest, topic);
+                } else {
+                    connection = new PartitionBasedWebsocketConnection(consumer, wsRequest, topic, partition, offset);
                 }
-            );
+
+                connectionHandler.handle(connection);
+
+                connection
+                    .listen()
+                    .onFailure(event -> {
+                        LOGGER.error("Unexpected error while listening for a given topic for websocket", event.getCause());
+                        consumer.close();
+                    });
+            });
     }
 
     private void handleRequest(ExecutionContext context, ProxyRequest request, String topic, Handler<Connection> connectionHandler) {

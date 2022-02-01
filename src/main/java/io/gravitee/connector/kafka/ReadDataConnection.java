@@ -87,38 +87,32 @@ public class ReadDataConnection extends AbstractConnection {
                     public void handle(Void event) {
                         consumer
                             .poll(Duration.ofMillis(timeout))
-                            .onSuccess(
-                                records -> {
-                                    if (records.isEmpty()) {
-                                        responseHandler.handle(new StatusResponse(HttpStatusCode.NOT_FOUND_404));
-                                    } else {
-                                        Buffer data = Buffer.buffer(JsonRecordFormatter.toString(records, true));
-                                        RecordResponse response = new RecordResponse(HttpStatusCode.OK_200);
-                                        response.headers().set(HttpHeaders.CONTENT_LENGTH, Integer.toString(data.length()));
-                                        responseHandler.handle(response);
-                                        response.bodyHandler().handle(data);
-                                        response.endHandler().handle(null);
-                                    }
+                            .onSuccess(records -> {
+                                if (records.isEmpty()) {
+                                    responseHandler.handle(new StatusResponse(HttpStatusCode.NOT_FOUND_404));
+                                } else {
+                                    Buffer data = Buffer.buffer(JsonRecordFormatter.toString(records, true));
+                                    RecordResponse response = new RecordResponse(HttpStatusCode.OK_200);
+                                    response.headers().set(HttpHeaders.CONTENT_LENGTH, Integer.toString(data.length()));
+                                    responseHandler.handle(response);
+                                    response.bodyHandler().handle(data);
+                                    response.endHandler().handle(null);
+                                }
 
-                                    consumer.close();
-                                }
-                            )
-                            .onFailure(
-                                event1 -> {
-                                    LOGGER.error("Kafka consume unable to poll a given partition", event1.getCause());
-                                    responseHandler.handle(new StatusResponse(HttpStatusCode.INTERNAL_SERVER_ERROR_500));
-                                    consumer.close();
-                                }
-                            );
+                                consumer.close();
+                            })
+                            .onFailure(event1 -> {
+                                LOGGER.error("Kafka consume unable to poll a given partition", event1.getCause());
+                                responseHandler.handle(new StatusResponse(HttpStatusCode.INTERNAL_SERVER_ERROR_500));
+                                consumer.close();
+                            });
                     }
                 }
             )
-            .onFailure(
-                event1 -> {
-                    LOGGER.error("Kafka consume unable to seek for a given partition", event1.getCause());
-                    responseHandler.handle(new StatusResponse(HttpStatusCode.INTERNAL_SERVER_ERROR_500));
-                    consumer.close();
-                }
-            );
+            .onFailure(event1 -> {
+                LOGGER.error("Kafka consume unable to seek for a given partition", event1.getCause());
+                responseHandler.handle(new StatusResponse(HttpStatusCode.INTERNAL_SERVER_ERROR_500));
+                consumer.close();
+            });
     }
 }

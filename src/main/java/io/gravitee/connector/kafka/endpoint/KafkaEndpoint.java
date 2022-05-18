@@ -36,6 +36,12 @@ public class KafkaEndpoint extends AbstractEndpoint {
     @JsonProperty("producer")
     private ProducerConfig producerConfig = new ProducerConfig();
 
+    @JsonProperty("sasl")
+    private SaslConfig saslConfig = new SaslConfig();
+
+    @JsonProperty("ssl")
+    private SslConfig sslConfig = new SslConfig();
+
     @JsonCreator
     public KafkaEndpoint(
         @JsonProperty(value = "type") String type,
@@ -67,5 +73,21 @@ public class KafkaEndpoint extends AbstractEndpoint {
 
     public void setProducerConfig(ProducerConfig producerConfig) {
         this.producerConfig = producerConfig;
+    }
+
+    public SaslConfig getSaslConfig() {
+        return saslConfig;
+    }
+
+    public void setSaslConfig(SaslConfig saslConfig) {
+        this.saslConfig = saslConfig;
+    }
+
+    public SslConfig getSslConfig() {
+        return sslConfig;
+    }
+
+    public void setSslConfig(SslConfig sslConfig) {
+        this.sslConfig = sslConfig;
     }
 }

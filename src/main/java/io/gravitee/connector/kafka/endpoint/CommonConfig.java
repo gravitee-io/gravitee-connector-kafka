@@ -15,6 +15,8 @@
  */
 package io.gravitee.connector.kafka.endpoint;
 
+import java.util.Map;
+
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
  * @author GraviteeSource Team
@@ -23,11 +25,21 @@ public class CommonConfig {
 
     private String clientDnsLookup = "USE_ALL_DNS_IPS";
 
+    private Map<String, String> additionalProperties;
+
     public String getClientDnsLookup() {
         return clientDnsLookup;
     }
 
     public void setClientDnsLookup(String clientDnsLookup) {
         this.clientDnsLookup = clientDnsLookup;
+    }
+
+    public Map<String, String> getAdditionalProperties() {
+        return additionalProperties;
+    }
+
+    public void setAdditionalProperties(Map<String, String> additionalProperties) {
+        this.additionalProperties = additionalProperties;
     }
 }

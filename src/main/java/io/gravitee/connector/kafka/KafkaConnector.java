@@ -173,6 +173,16 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
             ClientDnsLookup.getOrDefault(endpoint.getCommonConfig().getClientDnsLookup()).toString()
         );
 
+        // SASL Configuration
+        if (endpoint.getSaslConfig() != null) {
+            config.putAll(endpoint.getSaslConfig().getKafkaConfig());
+        }
+
+        // SSL Configuration
+        if (endpoint.getSslConfig() != null) {
+            config.putAll(endpoint.getSslConfig().getKafkaConfig());
+        }
+
         // Override value from external attributes
         overrideWithContextAttributes(config, context);
         config.put(ProducerConfig.CLIENT_ID_CONFIG, getClientId(context));
@@ -204,6 +214,16 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
             ClientDnsLookup.getOrDefault(endpoint.getCommonConfig().getClientDnsLookup()).toString()
         );
 
+        // SASL Configuration
+        if (endpoint.getSaslConfig() != null) {
+            config.putAll(endpoint.getSaslConfig().getKafkaConfig());
+        }
+
+        // SSL Configuration
+        if (endpoint.getSslConfig() != null) {
+            config.putAll(endpoint.getSslConfig().getKafkaConfig());
+        }
+
         // Override value from external attributes
         overrideWithContextAttributes(config, context);
         config.put(ConsumerConfig.GROUP_ID_CONFIG, getGroupId(context));
@@ -219,15 +239,15 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
     }
 
     private <T> T create(Function<Map<String, String>, T> function, Map<String, String> config) {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        //    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
-        try {
-            // Required to load classes from the kafka classloader
-            Thread.currentThread().setContextClassLoader(null);
-            return function.apply(config);
-        } finally {
-            Thread.currentThread().setContextClassLoader(classLoader);
-        }
+        //    try {
+        // Required to load classes from the kafka classloader
+        //        Thread.currentThread().setContextClassLoader(null);
+        return function.apply(config);
+        //    } finally {
+        //        Thread.currentThread().setContextClassLoader(classLoader);
+        //    }
     }
 
     private boolean isWebSocket(ProxyRequest request) {

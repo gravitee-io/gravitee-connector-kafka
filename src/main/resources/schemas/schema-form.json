@@ -535,6 +535,170 @@
       "x-schema-form": {
         "open": false
       }
+    },
+    "sasl": {
+      "type": "object",
+      "title": "SASL configuration",
+      "id": "urn:jsonschema:io:gravitee:connector:kafka:configuration:SaslConfiguration",
+      "properties": {
+        "mechanism": {
+          "title": "sasl.mechanism",
+          "description": "SASL mechanism used for client connections. This may be any mechanism for which a security provider is available. GSSAPI is the default mechanism.",
+          "type": "string",
+          "default": "GSSAPI"
+        },
+        "jaasConfig": {
+          "title": "sasl.jaas.config",
+          "description": "JAAS login context parameters for SASL connections in the format used by JAAS configuration files. JAAS configuration file format is described http://docs.oracle.com/javase/8/docs/technotes/guides/security/jgss/tutorials/LoginConfigFile.html. The format for the value is: '<code>loginModuleClass controlFlag (optionName=optionValue)*;</code>'.",
+          "type": "string"
+        },
+        "clientCallbackHandlerClass": {
+          "title": "sasl.client.callback.handler.class",
+          "description": "The fully qualified name of a SASL client callback handler class that implements the AuthenticateCallbackHandler interface.",
+          "type": "string"
+        },
+        "loginCallbackHandlerClass": {
+          "title": "sasl.login.callback.handler.class",
+          "description": "The fully qualified name of a SASL login callback handler class that implements the AuthenticateCallbackHandler interface.",
+          "type": "string"
+        },
+        "loginClass": {
+          "title": "sasl.login.class",
+          "description": "The fully qualified name of a class that implements the Login interface.",
+          "type": "string"
+        },
+        "loginRefreshWindowFactor": {
+          "title": "sasl.login.refresh.window.factor",
+          "description": "Login refresh thread will sleep until the specified window factor relative to the credential's lifetime has been reached, at which time it will try to refresh the credential. Legal values are between 0.5 (50%) and 1.0 (100%) inclusive; a default value of 0.8 (80%) is used if no value is specified. Currently applies only to OAUTHBEARER.",
+          "type": "number",
+          "maximum": 1,
+          "minimum": 0.5,
+          "default": 0.8
+        },
+        "loginRefreshWindowJitter": {
+          "title": "sasl.login.refresh.window.jitter",
+          "description": "The maximum amount of random jitter relative to the credential's lifetime that is added to the login refresh thread's sleep time. Legal values are between 0 and 0.25 (25%) inclusive; a default value of 0.05 (5%) is used if no value is specified. Currently applies only to OAUTHBEARER.",
+          "type": "number",
+          "maximum": 0.25,
+          "default": 0.05
+        },
+        "loginRefreshMinPeriodSeconds": {
+          "title": "sasl.login.refresh.min.period.seconds",
+          "description": "The desired minimum time for the login refresh thread to wait before refreshing a credential, in seconds. Legal values are between 0 and 900 (15 minutes); a default value of 60 (1 minute) is used if no value is specified.  This value and sasl.login.refresh.buffer.seconds are both ignored if their sum exceeds the remaining lifetime of a credential. Currently applies only to OAUTHBEARER.",
+          "type": "integer",
+          "maximum": 900,
+          "default": 60
+        },
+        "loginRefreshBufferSeconds": {
+          "title": "sasl.login.refresh.buffer.seconds",
+          "description": "The amount of buffer time before credential expiration to maintain when refreshing a credential, in seconds. If a refresh would otherwise occur closer to expiration than the number of buffer seconds then the refresh will be moved up to maintain as much of the buffer time as possible. Legal values are between 0 and 3600 (1 hour); a default value of  300 (5 minutes) is used if no value is specified. This value and sasl.login.refresh.min.period.seconds are both ignored if their sum exceeds the remaining lifetime of a credential. Currently applies only to OAUTHBEARER.",
+          "type": "integer",
+          "maximum": 3600,
+          "default": 300
+        }
+      },
+      "x-schema-form": {
+        "open": false
+      }
+    },
+    "ssl": {
+      "type": "object",
+      "title": "SSL configuration",
+      "id": "urn:jsonschema:io:gravitee:connector:kafka:configuration:SslConfiguration",
+      "properties": {
+        "protocol": {
+          "title": "ssl.protocol",
+          "description": "The SSL protocol used to generate the SSLContext. The default is 'TLSv1.3' when running with Java 11 or newer, 'TLSv1.2' otherwise. This value should be fine for most use cases. Allowed values in recent JVMs are 'TLSv1.2' and 'TLSv1.3'. 'TLS', 'TLSv1.1', 'SSL', 'SSLv2' and 'SSLv3' may be supported in older JVMs, but their usage is discouraged due to known security vulnerabilities. With the default value for this config and 'ssl.enabled.protocols', clients will downgrade to 'TLSv1.2' if the server does not support 'TLSv1.3'. If this config is set to 'TLSv1.2', clients will not use 'TLSv1.3' even if it is one of the values in ssl.enabled.protocols and the server only supports 'TLSv1.3'.",
+          "type": "string",
+          "default": "TLSv1.3"
+        },
+        "provider": {
+          "title": "ssl.provider",
+          "description": "The name of the security provider used for SSL connections. Default value is the default security provider of the JVM.",
+          "type": "string"
+        },
+        "cipherSuites": {
+          "title": "ssl.cipher.suites",
+          "description": "A list of cipher suites. This is a named combination of authentication, encryption, MAC and key exchange algorithm used to negotiate the security settings for a network connection using TLS or SSL network protocol. By default all the available cipher suites are supported.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "enabledProtocols": {
+          "title": "ssl.enabled.protocols",
+          "description": "The list of protocols enabled for SSL connections. The default is 'TLSv1.2,TLSv1.3' when running with Java 11 or newer, 'TLSv1.2' otherwise. With the default value for Java 11, clients and servers will prefer TLSv1.3 if both support it and fallback to TLSv1.2 otherwise (assuming both support at least TLSv1.2). This default should be fine for most cases. Also see the config documentation for `ssl.protocol`.",
+          "type": "string",
+          "default": "TLSv1.2,TLSv1.3"
+        },
+        "keystoreType": {
+          "title": "ssl.keystore.type",
+          "description": "The file format of the key store file. This is optional for client.",
+          "type": "string",
+          "default": "JKS"
+        },
+        "keystoreLocation": {
+          "title": "ssl.keystore.location",
+          "description": "The location of the key store file. This is optional for client and can be used for two-way authentication for client.",
+          "type": "string"
+        },
+        "keystorePassword": {
+          "title": "ssl.keystore.password",
+          "description": "The store password for the key store file. This is optional for client and only needed if ssl.keystore.location is configured.",
+          "type": "string"
+        },
+        "keyPassword": {
+          "title": "ssl.key.password",
+          "description": "The password of the private key in the key store file. This is optional for client.",
+          "type": "string"
+        },
+        "truststoreType": {
+          "title": "ssl.truststore.type",
+          "description": "The file format of the trust store file.",
+          "type": "string",
+          "default": "JKS"
+        },
+        "truststoreLocation": {
+          "title": "ssl.truststore.location",
+          "description": "The location of the trust store file.",
+          "type": "string"
+        },
+        "truststorePassword": {
+          "title": "ssl.truststore.password",
+          "description": "The password for the trust store file. If a password is not set access to the truststore is still available, but integrity checking is disabled.",
+          "type": "string"
+        },
+        "keymanagerAlgorithm": {
+          "title": "ssl.keymanager.algorithm",
+          "description": "The algorithm used by key manager factory for SSL connections. Default value is the key manager factory algorithm configured for the Java Virtual Machine.",
+          "type": "string"
+        },
+        "trustmanagerAlgorithm": {
+          "title": "ssl.trustmanager.algorithm",
+          "description": "The algorithm used by trust manager factory for SSL connections. Default value is the trust manager factory algorithm configured for the Java Virtual Machine.",
+          "type": "string"
+        },
+        "endpointIdentificationAlgorithm": {
+          "title": "ssl.endpoint.identification.algorithm",
+          "description": "The endpoint identification algorithm to validate server hostname using server certificate.",
+          "type": "string",
+          "default": "https"
+        },
+        "secureRandomImplementation": {
+          "title": "ssl.secure.random.implementation",
+          "description": "The SecureRandom PRNG implementation to use for SSL cryptography operations.",
+          "type": "string"
+        },
+        "engineFactoryClass": {
+          "title": "ssl.engine.factory.class",
+          "description": "The class of type org.apache.kafka.common.security.auth.SslEngineFactory to provide SSLEngine objects.",
+          "type": "string",
+          "default": "org.apache.kafka.common.security.ssl.DefaultSslEngineFactory"
+        }
+      },
+      "x-schema-form": {
+        "open": false
+      }
     }
   },
   "additionalProperties": false,

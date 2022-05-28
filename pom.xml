@@ -35,7 +35,7 @@
 
     <properties>
         <gravitee-bom.version>1.4</gravitee-bom.version>
-        <gravitee-connector-api.version>1.1.0</gravitee-connector-api.version>
+        <gravitee-connector-api.version>1.1.1</gravitee-connector-api.version>
         <gravitee-apim-gateway-buffer.version>3.15.0</gravitee-apim-gateway-buffer.version>
         <junit-jupiter-engine.version>5.8.1</junit-jupiter-engine.version>
         <mockito.version>3.11.2</mockito.version>

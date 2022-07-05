@@ -43,8 +43,6 @@ public abstract class WebsocketConnection extends AbstractConnection {
                 )
             )
             .endHandler(event -> proxyRequest.close());
-
-        proxyRequest.closeHandler(result -> consumer.unsubscribe().onComplete(event -> consumer.close()));
     }
 
     @Override

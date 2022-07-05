@@ -37,6 +37,7 @@ import io.vertx.core.Vertx;
 import io.vertx.kafka.client.consumer.KafkaConsumer;
 import io.vertx.kafka.client.producer.KafkaProducer;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -73,9 +74,11 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
     private static final String KAFKA_TIMEOUT_QUERY_PARAMETER = "timeout";
 
     private final KafkaEndpoint endpoint;
+    private final Map<String, WebSocketProxyRequest> wsRequests;
 
     public KafkaConnector(final KafkaEndpoint endpoint) {
         this.endpoint = endpoint;
+        this.wsRequests = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -104,28 +107,57 @@ public class KafkaConnector extends AbstractConnector<Connection, ProxyRequest> 
 
         int partition = readIntValue(extractPartition(context, request));
         long offset = readLongValue(extractOffset(context, request));
-        KafkaConsumer<String, String> consumer = createConsumer(context);
+        final KafkaConsumer<String, String> consumer = createConsumer(context);
+        final String requestId = context.request().id() != null ? context.request().id() : UUID.random().toString();
+
+        LOGGER.debug("Keeping reference to websocket request [{}]", requestId);
+        wsRequests.put(requestId, wsRequest);
 
         wsRequest
             .upgrade()
-            .thenAccept(webSocketProxyRequest -> {
-                WebsocketConnection connection;
-
-                if (partition == -1) {
-                    connection = new TopicBasedWebsocketConnection(consumer, wsRequest, topic);
-                } else {
-                    connection = new PartitionBasedWebsocketConnection(consumer, wsRequest, topic, partition, offset);
-                }
-
-                connectionHandler.handle(connection);
-
-                connection
-                    .listen()
-                    .onFailure(event -> {
-                        LOGGER.error("Unexpected error while listening for a given topic for websocket", event.getCause());
+            .whenComplete(
+                (webSocketProxyRequest, throwable) -> {
+                    if (throwable != null) {
+                        wsRequest.close();
                         consumer.close();
-                    });
-            });
+                        wsRequests.remove(requestId);
+                    } else {
+                        WebsocketConnection connection;
+
+                        if (partition == -1) {
+                            connection = new TopicBasedWebsocketConnection(consumer, wsRequest, topic);
+                        } else {
+                            connection = new PartitionBasedWebsocketConnection(consumer, wsRequest, topic, partition, offset);
+                        }
+
+                        // Set a close handler on the ws request to stop consuming and cleanup connection when websocket is closed.
+                        wsRequest.closeHandler(
+                            result -> {
+                                wsRequests.remove(requestId);
+                                consumer.unsubscribe().onComplete(event -> consumer.close());
+                            }
+                        );
+
+                        connectionHandler.handle(connection);
+
+                        connection
+                            .listen()
+                            .onFailure(
+                                event -> {
+                                    LOGGER.error("Unexpected error while listening for a given topic for websocket", event.getCause());
+                                    consumer.close();
+                                }
+                            );
+                    }
+                }
+            );
+    }
+
+    @Override
+    protected void doStop() throws Exception {
+        super.doStop();
+
+        wsRequests.forEach((consumerId, wsRequest) -> wsRequest.close());
     }
 
     private void handleRequest(ExecutionContext context, ProxyRequest request, String topic, Handler<Connection> connectionHandler) {

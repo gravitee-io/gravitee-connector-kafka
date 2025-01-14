@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/gravitee-io/gravitee-connector-kafka/compare/1.1.1...1.1.2) (2025-01-14)
+
+
+### Bug Fixes
+
+* **deps:** update dependency io.gravitee.connector:gravitee-connector-api to v1.1.5 ([c6d54db](https://github.com/gravitee-io/gravitee-connector-kafka/commit/c6d54db2eecae53e6ed4f26c385276c96cd2ae80))
+
 ## [1.1.1](https://github.com/gravitee-io/gravitee-connector-kafka/compare/1.1.0...1.1.1) (2022-07-06)
 
 
